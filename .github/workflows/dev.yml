@@ -1,0 +1,45 @@
+name: Merge and Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  merge_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Fetches the entire history of the repository
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.403'
+
+    - name: Merge main to dev
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git checkout main
+        git pull origin main
+        git checkout dev
+        git merge --no-ff main
+        git push origin dev
+
+    - name: Deploy to Linode
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.LINODE_HOST }}
+        username: ${{ secrets.LINODE_USER }}
+        key: ${{ secrets.LINODE_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        script: |
+          cd EasyContinuity-API
+          git checkout main
+          git pull origin main
+          git checkout dev
+          git merge main
+        #   docker compose -f docker-compose.preprod.yml down
+        #   docker compose -f docker-compose.dev.yml up -d --build
