@@ -231,4 +231,5 @@ _Pvt_Extensions
 # FAKE - F# Make
 .fake/
 
-*.txt
+.env.dev
+.env.preprod
