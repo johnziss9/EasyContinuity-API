@@ -11,14 +11,12 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/out .
 
-# Environment variable to enable developer exception page
 ENV ASPNETCORE_ENVIRONMENT=Development
 
-# Expose port 80 for the application
 EXPOSE 80
 
-# Add health check (note: this assumes the app has a /health endpoint)
-HEALTHCHECK --interval=30s --timeout=3s \
-  CMD wget -qO- http://localhost/health || exit 1
+# Checks if the root URL of the application responds.
+HEALTHCHECK --interval=10s --timeout=3s --start-period=20s \
+  CMD curl -f http://localhost/ || exit 1
 
 ENTRYPOINT ["dotnet", "EasyContinuity.dll"]
