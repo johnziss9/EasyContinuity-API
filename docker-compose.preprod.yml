@@ -6,18 +6,20 @@ services:
       context: .
       dockerfile: Dockerfile.preprod
     ports:
-      - "5000:80"
+      - "5002:80"
     depends_on:
-      - postgres
+      - postgres-preprod
+    environment:
+      - ConnectionStrings__ECPostgresConnection=Host=postgres-preprod;Database=ecdb_preprod;Username=johnz;Password=${POSTGRES_PASSWORD}
 
-  postgres:
+  postgres-preprod:
     image: postgres
     environment:
-      POSTGRES_DB: ecdb
+      POSTGRES_DB: ecdb_preprod
       POSTGRES_USER: johnz
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - db-preprod-data:/var/lib/postgresql/data
     secrets:
@@ -29,9 +31,9 @@ services:
       PGADMIN_DEFAULT_EMAIL: jz@ec.com
       PGADMIN_DEFAULT_PASSWORD_FILE: /run/secrets/pgadmin_password
     ports:
-      - "8080:80"
+      - "8082:80"
     depends_on:
-      - postgres
+      - postgres_preprod
     secrets:
       - pgadmin_password
 
