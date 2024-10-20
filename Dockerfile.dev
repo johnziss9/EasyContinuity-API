@@ -12,5 +12,6 @@ WORKDIR /app
 COPY --from=build /app/out .
 
 ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_URLS=http://+:80
 
 ENTRYPOINT [ "dotnet", "EasyContinuity-API.dll" ]
