@@ -6,40 +6,39 @@ services:
       context: .
       dockerfile: Dockerfile.preprod
     ports:
-      - "5000:80"
+      - "5002:80"
     depends_on:
-      - postgres
+      - postgres-preprod
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__ECPostgresConnection=Host=${DB_HOST};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+    env_file:
+      - .env.preprod
 
-  postgres:
+  postgres-preprod:
     image: postgres
     environment:
-      POSTGRES_DB: ecdb
-      POSTGRES_USER: johnz
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - db-preprod-data:/var/lib/postgresql/data
-    secrets:
-      - postgres_password
+    env_file:
+      - .env.preprod
 
-  pgadmin:
+  pgadmin-preprod:
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: jz@ec.com
-      PGADMIN_DEFAULT_PASSWORD_FILE: /run/secrets/pgadmin_password
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "8080:80"
+      - "8082:80"
     depends_on:
-      - postgres
-    secrets:
-      - pgadmin_password
+      - postgres-preprod
+    env_file:
+      - .env.preprod
 
 volumes:
   db-preprod-data:
-
-secrets:
-  postgres_password:
-    file: ./postgres_password.txt
-  pgadmin_password:
-    file: ./pgadmin_password.txt

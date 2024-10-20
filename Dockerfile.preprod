@@ -11,12 +11,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/out .
 
-ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_ENVIRONMENT=Staging
+ENV ASPNETCORE_URLS=http://+:80
 
-EXPOSE 80
-
-# Checks if the root URL of the application responds.
-HEALTHCHECK --interval=10s --timeout=3s --start-period=20s \
-  CMD curl -f http://localhost/ || exit 1
-
-ENTRYPOINT ["dotnet", "EasyContinuity.dll"]
+ENTRYPOINT ["dotnet", "EasyContinuity-API.dll"]

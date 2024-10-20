@@ -1,36 +1,44 @@
 version: '3.9'
 
 services:
-  postgres:
+  easy-continuity-api-local:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5001:80"
+    depends_on:
+      - postgres-local
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__ECPostgresConnection=Host=${DB_HOST};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+    env_file:
+      - .env.local
+
+  postgres-local:
     image: postgres
     environment:
-      POSTGRES_DB: ecdb
-      POSTGRES_USER: johnz
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - db-local-data:/var/lib/postgresql/data
-    secrets:
-      - postgres_password
+    env_file:
+      - .env.local
 
-  pgadmin:
+  pgadmin-local:
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: jz@ec.com
-      PGADMIN_DEFAULT_PASSWORD_FILE: /run/secrets/pgadmin_password
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "8080:80"
+      - "8081:80"
     depends_on:
-      - postgres
-    secrets:
-      - pgadmin_password
+      - postgres-local
+    env_file:
+      - .env.local
 
 volumes:
   db-local-data:
-
-secrets:
-  postgres_password:
-    file: ./postgres_password.txt
-  pgadmin_password:
-    file: ./pgadmin_password.txt
