@@ -6,5 +6,7 @@ namespace EasyContinuity_API.Interfaces
     public interface ISpaceService
     {
         Task<Response<Space>> CreateSpace(Space space);
+
+        Task<Response<List<Space>>> GetAllSpaces();
     }
 }
