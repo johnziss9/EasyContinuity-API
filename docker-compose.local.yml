@@ -37,8 +37,11 @@ services:
       - "8081:80"
     depends_on:
       - postgres-local
+    volumes:
+      - pgadmin-local-data:/var/lib/pgadmin
     env_file:
       - .env.local
 
 volumes:
   db-local-data:
+  pgadmin-local-data:
