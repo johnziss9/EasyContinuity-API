@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Interfaces;
 using EasyContinuity_API.Models;
@@ -20,6 +21,12 @@ namespace EasyContinuity_API.Controllers
         public async Task<ActionResult<Space>> Create(Space space)
         {
             return ResponseHelper.HandleErrorAndReturn(await _spaceService.CreateSpace(space));
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<Space>>> GetAll()
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _spaceService.GetAllSpaces());
         }
     }
 }
