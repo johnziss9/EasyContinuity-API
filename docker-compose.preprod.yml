@@ -37,8 +37,11 @@ services:
       - "8082:80"
     depends_on:
       - postgres-preprod
+    volumes:
+      - pgadmin-preprod-data:/var/lib/pgadmin
     env_file:
       - .env.preprod
 
 volumes:
   db-preprod-data:
+  pgadmin-preprod-data:
