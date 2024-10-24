@@ -53,6 +53,11 @@ namespace EasyContinuity_API.Services
                 space.IsDeleted = updatedSpace.IsDeleted;
             }
 
+            if (updatedSpace.LastUpdatedBy != null && updatedSpace.LastUpdatedBy != space.LastUpdatedBy)
+            {
+                space.LastUpdatedBy = updatedSpace.LastUpdatedBy;
+            }
+
             if (updatedSpace.LastUpdatedOn != space.LastUpdatedOn)
             {
                 space.LastUpdatedOn = updatedSpace.LastUpdatedOn;
