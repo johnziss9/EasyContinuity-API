@@ -35,7 +35,7 @@ namespace EasyContinuity_API.Services
 
             if (space == null)
             {
-                return Response<Space>.Fail(404, "Booking Not Found");
+                return Response<Space>.Fail(404, "Space Not Found");
             }
 
             if (updatedSpace.Name != null && updatedSpace.Name != space.Name)
