@@ -27,5 +27,11 @@ namespace EasyContinuity_API.Controllers
         {
             return ResponseHelper.HandleErrorAndReturn(await _spaceService.GetAllSpaces());
         }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Space>> Update(int id, Space space)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _spaceService.UpdateSpace(id, space));
+        }
     }
 }
