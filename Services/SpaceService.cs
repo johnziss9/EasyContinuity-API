@@ -58,12 +58,12 @@ namespace EasyContinuity_API.Services
                 space.LastUpdatedBy = updatedSpace.LastUpdatedBy;
             }
 
-            if (updatedSpace.LastUpdatedOn != space.LastUpdatedOn)
+            if (updatedSpace.LastUpdatedOn != null && updatedSpace.LastUpdatedOn != space.LastUpdatedOn)
             {
                 space.LastUpdatedOn = updatedSpace.LastUpdatedOn;
             }
 
-            if (updatedSpace.DeletedOn != space.DeletedOn)
+            if (updatedSpace.DeletedOn != null && updatedSpace.DeletedOn != space.DeletedOn)
             {
                 space.DeletedOn = updatedSpace.DeletedOn;
             }
