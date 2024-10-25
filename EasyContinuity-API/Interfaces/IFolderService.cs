@@ -6,5 +6,7 @@ namespace EasyContinuity_API.Interfaces
     public interface IFolderService
     {
         Task<Response<Folder>> CreateFolder(Folder folder);
+
+        Task<Response<List<Folder>>> GetAllFoldersBySpaceId(int spaceId);
     }
 }

@@ -2,6 +2,7 @@ using EasyContinuity_API.Data;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Interfaces;
 using EasyContinuity_API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace EasyContinuity_API.Services
 {
@@ -22,12 +23,12 @@ namespace EasyContinuity_API.Services
             return Response<Folder>.Success(folder);
         }
 
-        // public async Task<Response<List<Space>>> GetAllSpaces()
-        // {
-        //     var spaces = await _ecDbContext.Spaces.ToListAsync();
+        public async Task<Response<List<Folder>>> GetAllFoldersBySpaceId(int spaceId)
+        {
+            var folders = await _ecDbContext.Folders.Where(s => s.SpaceId == spaceId).ToListAsync();
 
-        //     return Response<List<Space>>.Success(spaces);
-        // }
+            return Response<List<Folder>>.Success(folders);
+        }
 
         // public async Task<Response<Space>> UpdateSpace(int id, Space updatedSpace)
         // {

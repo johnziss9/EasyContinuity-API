@@ -21,5 +21,11 @@ namespace EasyContinuity_API.Controllers
         {
             return ResponseHelper.HandleErrorAndReturn(await _folderService.CreateFolder(folder));
         }
+
+        [HttpGet("space/{spaceId}")]
+        public async Task<ActionResult<List<Folder>>> GetAllBySpace(int spaceId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _folderService.GetAllFoldersBySpaceId(spaceId));
+        }
     }
 }
