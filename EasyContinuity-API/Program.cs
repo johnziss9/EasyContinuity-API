@@ -16,6 +16,7 @@ builder.Services.AddDbContext<ECDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("ECPostgresConnection")));
 
 builder.Services.AddScoped<ISpaceService, SpaceService>();
+builder.Services.AddScoped<IFolderService, FolderService>();
 
 var app = builder.Build();
 
