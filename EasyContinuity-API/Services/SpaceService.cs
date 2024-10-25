@@ -1,3 +1,4 @@
+using EasyContinuity_API.Data;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Interfaces;
 using EasyContinuity_API.Models;
@@ -45,7 +46,7 @@ namespace EasyContinuity_API.Services
 
             if (updatedSpace.Description != null && updatedSpace.Description != space.Description)
             {
-                space.Name = updatedSpace.Description;
+                space.Description = updatedSpace.Description;
             }
 
             if (updatedSpace.IsDeleted != space.IsDeleted)
