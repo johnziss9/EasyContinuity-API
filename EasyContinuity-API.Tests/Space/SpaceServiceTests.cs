@@ -95,7 +95,6 @@ public class SpaceServiceTests
             spaceId = space.Id;
         }
 
-        // Use a fresh context
         using (var context = CreateContext(dbName))
         {
             var service = new SpaceService(context);
@@ -169,7 +168,6 @@ public class SpaceServiceTests
             originalUpdateTime = space.LastUpdatedOn.Value;
         }
 
-        // Use a fresh context
         using (var context = CreateContext(dbName))
         {
             var service = new SpaceService(context);

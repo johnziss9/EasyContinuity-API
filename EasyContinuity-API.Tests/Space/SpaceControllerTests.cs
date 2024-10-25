@@ -63,7 +63,6 @@ public class SpaceControllerTests
             await context.SaveChangesAsync();
         }
 
-        // Use a fresh context
         using (var context = CreateContext(dbName))
         {
             var service = new SpaceService(context);
