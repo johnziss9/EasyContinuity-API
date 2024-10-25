@@ -27,5 +27,11 @@ namespace EasyContinuity_API.Controllers
         {
             return ResponseHelper.HandleErrorAndReturn(await _folderService.GetAllFoldersBySpaceId(spaceId));
         }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Folder>> Update(int id, Folder folder)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _folderService.UpdateFolder(id, folder));
+        }
     }
 }

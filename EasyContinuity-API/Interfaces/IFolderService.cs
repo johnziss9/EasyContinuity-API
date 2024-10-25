@@ -8,5 +8,7 @@ namespace EasyContinuity_API.Interfaces
         Task<Response<Folder>> CreateFolder(Folder folder);
 
         Task<Response<List<Folder>>> GetAllFoldersBySpaceId(int spaceId);
+
+        Task<Response<Folder>> UpdateFolder(int id, Folder updatedFolder);
     }
 }
