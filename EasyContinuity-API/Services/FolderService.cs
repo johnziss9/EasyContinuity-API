@@ -30,48 +30,58 @@ namespace EasyContinuity_API.Services
             return Response<List<Folder>>.Success(folders);
         }
 
-        // public async Task<Response<Space>> UpdateSpace(int id, Space updatedSpace)
-        // {
-        //     var space = await _ecDbContext.Spaces.Where(s => s.Id == id).FirstOrDefaultAsync();
+        public async Task<Response<Folder>> UpdateFolder(int id, Folder updatedFolder)
+        {
+            var folder = await _ecDbContext.Folders.Where(f => f.Id == id).FirstOrDefaultAsync();
 
-        //     if (space == null)
-        //     {
-        //         return Response<Space>.Fail(404, "Space Not Found");
-        //     }
+            if (folder == null)
+            {
+                return Response<Folder>.Fail(404, "Folder Not Found");
+            }
 
-        //     if (updatedSpace.Name != null && updatedSpace.Name != space.Name)
-        //     {
-        //         space.Name = updatedSpace.Name;
-        //     }
+            if (updatedFolder.SpaceId != 0 && updatedFolder.SpaceId != folder.SpaceId)
+            {
+                folder.SpaceId = updatedFolder.SpaceId;
+            }
 
-        //     if (updatedSpace.Description != null && updatedSpace.Description != space.Description)
-        //     {
-        //         space.Description = updatedSpace.Description;
-        //     }
+            if (updatedFolder.ParentId != null && updatedFolder.ParentId != folder.ParentId)
+            {
+                folder.ParentId = updatedFolder.ParentId;
+            }
 
-        //     if (updatedSpace.IsDeleted != space.IsDeleted)
-        //     {
-        //         space.IsDeleted = updatedSpace.IsDeleted;
-        //     }
+            if (updatedFolder.Name != null && updatedFolder.Name != folder.Name)
+            {
+                folder.Name = updatedFolder.Name;
+            }
 
-        //     if (updatedSpace.LastUpdatedBy != null && updatedSpace.LastUpdatedBy != space.LastUpdatedBy)
-        //     {
-        //         space.LastUpdatedBy = updatedSpace.LastUpdatedBy;
-        //     }
+            if (updatedFolder.Description != null && updatedFolder.Description != folder.Description)
+            {
+                folder.Description = updatedFolder.Description;
+            }
 
-        //     if (updatedSpace.LastUpdatedOn != null && updatedSpace.LastUpdatedOn != space.LastUpdatedOn)
-        //     {
-        //         space.LastUpdatedOn = updatedSpace.LastUpdatedOn;
-        //     }
+            if (updatedFolder.IsDeleted != folder.IsDeleted)
+            {
+                folder.IsDeleted = updatedFolder.IsDeleted;
+            }
 
-        //     if (updatedSpace.DeletedOn != null && updatedSpace.DeletedOn != space.DeletedOn)
-        //     {
-        //         space.DeletedOn = updatedSpace.DeletedOn;
-        //     }
+            if (updatedFolder.LastUpdatedBy != null && updatedFolder.LastUpdatedBy != folder.LastUpdatedBy)
+            {
+                folder.LastUpdatedBy = updatedFolder.LastUpdatedBy;
+            }
 
-        //     await _ecDbContext.SaveChangesAsync();
+            if (updatedFolder.LastUpdatedOn != null && updatedFolder.LastUpdatedOn != folder.LastUpdatedOn)
+            {
+                folder.LastUpdatedOn = updatedFolder.LastUpdatedOn;
+            }
 
-        //     return Response<Space>.Success(space);
-        // }
+            if (updatedFolder.DeletedOn != null && updatedFolder.DeletedOn != folder.DeletedOn)
+            {
+                folder.DeletedOn = updatedFolder.DeletedOn;
+            }
+
+            await _ecDbContext.SaveChangesAsync();
+
+            return Response<Folder>.Success(folder);
+        }
     }
 }
