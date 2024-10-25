@@ -1,6 +1,7 @@
+using EasyContinuity_API.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace EasyContinuity_API.Models
+namespace EasyContinuity_API.Data
 {
     public class ECDbContext : DbContext
     {
