@@ -11,10 +11,18 @@ namespace EasyContinuity_API.Data
         }
 
         public DbSet<User> Users { get; set; }
+        
         public DbSet<Space> Spaces { get; set; }
+        
         public DbSet<UserSpace> UserSpaces { get; set; }
+        
         public DbSet<Folder> Folders { get; set; }
+        
+        public DbSet<Snapshot> Snapshots { get; set; }
+        
         public DbSet<Attachment> Attachments { get; set; }
+        
+        public DbSet<Character> Characters { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
