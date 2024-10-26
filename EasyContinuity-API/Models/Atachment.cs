@@ -8,6 +8,8 @@ namespace EasyContinuity_API.Models
 
         public int SpaceId { get; set; }
 
+        public int? SnapshotId { get; set; }
+
         public int? FolderId { get; set; }
 
         [Required(ErrorMessage = "Name is required.")]

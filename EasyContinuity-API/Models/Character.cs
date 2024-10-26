@@ -2,18 +2,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EasyContinuity_API.Models
 {
-    public class Folder
+    public class Character
     {
         public int Id { get; set; }
 
-        public int SpaceId { get; set; }
-
-        public int? ParentId { get; set; }
-
         [Required(ErrorMessage = "Name is required.")]
         public string Name { get; set; } = "";
-
-        public string? Description { get; set; }
 
         public bool IsDeleted { get; set; }
 
