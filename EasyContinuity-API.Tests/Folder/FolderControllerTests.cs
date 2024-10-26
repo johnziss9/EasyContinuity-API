@@ -50,7 +50,7 @@ public class FolderControllerTests
     }
 
     [Fact]
-    public async Task GetAll_ShouldReturnAllFolders()
+    public async Task GetAll_ShouldReturnAllFoldersBySpaceId()
     {
         // Arrange
         var dbName = "GetAllControllerTest";
