@@ -7,11 +7,31 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EasyContinuity_API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Characters",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: false),
+                    LastUpdatedBy = table.Column<int>(type: "integer", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastUpdatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Characters", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Folders",
                 columns: table => new
@@ -24,10 +44,11 @@ namespace EasyContinuity_API.Migrations
                     Description = table.Column<string>(type: "text", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedBy = table.Column<int>(type: "integer", nullable: false),
-                    LastUpdatedBy = table.Column<int>(type: "integer", nullable: false),
+                    LastUpdatedBy = table.Column<int>(type: "integer", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DeletedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DeletedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -41,6 +62,44 @@ namespace EasyContinuity_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Snapshots",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SpaceId = table.Column<int>(type: "integer", nullable: false),
+                    FolderId = table.Column<int>(type: "integer", nullable: true),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: false),
+                    LastUpdatedBy = table.Column<int>(type: "integer", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastUpdatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<int>(type: "integer", nullable: true),
+                    Episode = table.Column<string>(type: "text", nullable: true),
+                    Scene = table.Column<int>(type: "integer", nullable: false),
+                    StoryDay = table.Column<int>(type: "integer", nullable: false),
+                    Character = table.Column<int>(type: "integer", nullable: false),
+                    Notes = table.Column<string>(type: "text", nullable: true),
+                    Skin = table.Column<string>(type: "text", nullable: true),
+                    Brows = table.Column<string>(type: "text", nullable: true),
+                    Eyes = table.Column<string>(type: "text", nullable: true),
+                    Lips = table.Column<string>(type: "text", nullable: true),
+                    Effects = table.Column<string>(type: "text", nullable: true),
+                    MakeupNotes = table.Column<string>(type: "text", nullable: true),
+                    Prep = table.Column<string>(type: "text", nullable: true),
+                    Method = table.Column<string>(type: "text", nullable: true),
+                    StylingTools = table.Column<string>(type: "text", nullable: true),
+                    Products = table.Column<string>(type: "text", nullable: true),
+                    HairNotes = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Snapshots", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Spaces",
                 columns: table => new
                 {
@@ -50,10 +109,11 @@ namespace EasyContinuity_API.Migrations
                     Description = table.Column<string>(type: "text", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedBy = table.Column<int>(type: "integer", nullable: false),
-                    LastUpdatedBy = table.Column<int>(type: "integer", nullable: false),
+                    LastUpdatedBy = table.Column<int>(type: "integer", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DeletedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DeletedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -100,6 +160,7 @@ namespace EasyContinuity_API.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     SpaceId = table.Column<int>(type: "integer", nullable: false),
+                    SnapshotId = table.Column<int>(type: "integer", nullable: true),
                     FolderId = table.Column<int>(type: "integer", nullable: true),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Path = table.Column<string>(type: "text", nullable: false),
@@ -139,6 +200,12 @@ namespace EasyContinuity_API.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Attachments");
+
+            migrationBuilder.DropTable(
+                name: "Characters");
+
+            migrationBuilder.DropTable(
+                name: "Snapshots");
 
             migrationBuilder.DropTable(
                 name: "Spaces");

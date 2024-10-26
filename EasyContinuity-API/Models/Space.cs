@@ -22,5 +22,7 @@ namespace EasyContinuity_API.Models
         public DateTime? LastUpdatedOn { get; set; }
 
         public DateTime? DeletedOn { get; set; }
+
+        public int? DeletedBy { get; set; }
     }
 }
