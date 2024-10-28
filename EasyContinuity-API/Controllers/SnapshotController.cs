@@ -43,7 +43,7 @@ namespace EasyContinuity_API.Controllers
         [HttpGet("{snapshotId}")]
         public async Task<ActionResult<Snapshot>> GetSingle(int snapshotId)
         {
-            return ResponseHelper.HandleErrorAndReturn(await _snapshotService.GetSingleById(snapshotId));
+            return ResponseHelper.HandleErrorAndReturn(await _snapshotService.GetSingleSnapshotById(snapshotId));
         }
 
         // [HttpPut("{id}")]

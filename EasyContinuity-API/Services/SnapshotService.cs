@@ -44,7 +44,7 @@ namespace EasyContinuity_API.Services
             return Response<List<Snapshot>>.Success(snapshots);
         }
 
-        public async Task<Response<Snapshot>> GetSingleById(int snapshotId)
+        public async Task<Response<Snapshot>> GetSingleSnapshotById(int snapshotId)
         {
             var snapshot = await _ecDbContext.Snapshots.Where(s => s.Id == snapshotId).FirstOrDefaultAsync();
 

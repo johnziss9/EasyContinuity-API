@@ -13,7 +13,7 @@ namespace EasyContinuity_API.Interfaces
 
         Task<Response<List<Snapshot>>> GetAllRootSnapshotsBySpaceId(int spaceId);
 
-        Task<Response<Snapshot>> GetSingleById(int snapshotId);
+        Task<Response<Snapshot>> GetSingleSnapshotById(int snapshotId);
 
         // Task<Response<Space>> UpdateSpace(int id, Space updatedSpace);
     }
