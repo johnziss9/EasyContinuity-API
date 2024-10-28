@@ -29,11 +29,11 @@ namespace EasyContinuity_API.Models
 
         public string? Episode { get; set; }
 
-        public int Scene { get; set; }
+        public int? Scene { get; set; }
 
-        public int StoryDay { get; set; }
+        public int? StoryDay { get; set; }
 
-        public int Character { get; set; }
+        public int? Character { get; set; }
 
         public string? Notes { get; set; }
 
