@@ -79,6 +79,11 @@ namespace EasyContinuity_API.Services
                 folder.DeletedOn = updatedFolder.DeletedOn;
             }
 
+            if (updatedFolder.DeletedBy != null && updatedFolder.DeletedBy != folder.DeletedBy)
+            {
+                folder.DeletedBy = updatedFolder.DeletedBy;
+            }
+
             await _ecDbContext.SaveChangesAsync();
 
             return Response<Folder>.Success(folder);

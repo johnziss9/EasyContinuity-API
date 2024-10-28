@@ -15,6 +15,6 @@ namespace EasyContinuity_API.Interfaces
 
         Task<Response<Snapshot>> GetSingleSnapshotById(int snapshotId);
 
-        // Task<Response<Space>> UpdateSpace(int id, Space updatedSpace);
+        Task<Response<Snapshot>> UpdateSnapshot(int id, Snapshot updatedSnapshot);
     }
 }
