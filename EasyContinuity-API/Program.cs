@@ -1,6 +1,5 @@
 using EasyContinuity_API.Data;
 using EasyContinuity_API.Interfaces;
-using EasyContinuity_API.Models;
 using EasyContinuity_API.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +16,7 @@ builder.Services.AddDbContext<ECDbContext>(options =>
 
 builder.Services.AddScoped<ISpaceService, SpaceService>();
 builder.Services.AddScoped<IFolderService, FolderService>();
+builder.Services.AddScoped<ISnapshotService, SnapshotService>();
 
 var app = builder.Build();
 
