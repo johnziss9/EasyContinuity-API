@@ -69,6 +69,11 @@ namespace EasyContinuity_API.Services
                 space.DeletedOn = updatedSpace.DeletedOn;
             }
 
+            if (updatedSpace.DeletedBy != null && updatedSpace.DeletedBy != space.DeletedBy)
+            {
+                space.DeletedBy = updatedSpace.DeletedBy;
+            }
+
             await _ecDbContext.SaveChangesAsync();
 
             return Response<Space>.Success(space);

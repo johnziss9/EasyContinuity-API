@@ -46,10 +46,10 @@ namespace EasyContinuity_API.Controllers
             return ResponseHelper.HandleErrorAndReturn(await _snapshotService.GetSingleSnapshotById(snapshotId));
         }
 
-        // [HttpPut("{id}")]
-        // public async Task<ActionResult<Space>> Update(int id, Space space)
-        // {
-        //     return ResponseHelper.HandleErrorAndReturn(await _spaceService.UpdateSpace(id, space));
-        // }
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Snapshot>> Update(int id, Snapshot snapshot)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _snapshotService.UpdateSnapshot(id, snapshot));
+        }
     }
 }
