@@ -177,7 +177,7 @@ namespace EasyContinuity_API.Migrations
                     b.Property<string>("Brows")
                         .HasColumnType("text");
 
-                    b.Property<int>("Character")
+                    b.Property<int?>("Character")
                         .HasColumnType("integer");
 
                     b.Property<int>("CreatedBy")
@@ -238,7 +238,7 @@ namespace EasyContinuity_API.Migrations
                     b.Property<string>("Products")
                         .HasColumnType("text");
 
-                    b.Property<int>("Scene")
+                    b.Property<int?>("Scene")
                         .HasColumnType("integer");
 
                     b.Property<string>("Skin")
@@ -247,7 +247,7 @@ namespace EasyContinuity_API.Migrations
                     b.Property<int>("SpaceId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("StoryDay")
+                    b.Property<int?>("StoryDay")
                         .HasColumnType("integer");
 
                     b.Property<string>("StylingTools")
