@@ -23,12 +23,38 @@ namespace EasyContinuity_API.Services
             return Response<Snapshot>.Success(snapshot);
         }
 
-        // public async Task<Response<List<Space>>> GetAllSpaces()
-        // {
-        //     var spaces = await _ecDbContext.Spaces.ToListAsync();
+        public async Task<Response<List<Snapshot>>> GetAllSnapshotsBySpaceId(int spaceId)
+        {
+            var snapshots = await _ecDbContext.Snapshots.Where(s => s.SpaceId == spaceId).ToListAsync();
 
-        //     return Response<List<Space>>.Success(spaces);
-        // }
+            return Response<List<Snapshot>>.Success(snapshots);
+        }
+
+        public async Task<Response<List<Snapshot>>> GetAllSnapshotsByFolderId(int folderId)
+        {
+            var snapshots = await _ecDbContext.Snapshots.Where(s => s.FolderId == folderId).ToListAsync();
+
+            return Response<List<Snapshot>>.Success(snapshots);
+        }
+
+        public async Task<Response<List<Snapshot>>> GetAllRootSnapshotsBySpaceId(int spaceId)
+        {
+            var snapshots = await _ecDbContext.Snapshots.Where(s => s.SpaceId == spaceId && s.FolderId == null).ToListAsync();
+
+            return Response<List<Snapshot>>.Success(snapshots);
+        }
+
+        public async Task<Response<Snapshot>> GetSingleSnapshotById(int snapshotId)
+        {
+            var snapshot = await _ecDbContext.Snapshots.Where(s => s.Id == snapshotId).FirstOrDefaultAsync();
+
+            if (snapshot == null)
+            {
+                return Response<Snapshot>.Fail(404, "Snapshot Not Found");
+            }
+
+            return Response<Snapshot>.Success(snapshot);
+        }
 
         // public async Task<Response<Space>> UpdateSpace(int id, Space updatedSpace)
         // {
