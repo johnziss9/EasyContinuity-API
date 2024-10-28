@@ -22,11 +22,29 @@ namespace EasyContinuity_API.Controllers
             return ResponseHelper.HandleErrorAndReturn(await _snapshotService.CreateSnapshot(snapshot));
         }
 
-        // [HttpGet]
-        // public async Task<ActionResult<List<Space>>> GetAll()
-        // {
-        //     return ResponseHelper.HandleErrorAndReturn(await _spaceService.GetAllSpaces());
-        // }
+        [HttpGet("space/{spaceId}")]
+        public async Task<ActionResult<List<Snapshot>>> GetAllBySpace(int spaceId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _snapshotService.GetAllSnapshotsBySpaceId(spaceId));
+        }
+
+        [HttpGet("folder/{folderId}")]
+        public async Task<ActionResult<List<Snapshot>>> GetAllByFolder(int folderId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _snapshotService.GetAllSnapshotsByFolderId(folderId));
+        }
+
+        [HttpGet("space/{spaceId}/root")]
+        public async Task<ActionResult<List<Snapshot>>> GetAllRootBySpace(int spaceId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _snapshotService.GetAllRootSnapshotsBySpaceId(spaceId));
+        }
+
+        [HttpGet("{snapshotId}")]
+        public async Task<ActionResult<Snapshot>> GetSingle(int snapshotId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _snapshotService.GetSingleSnapshotById(snapshotId));
+        }
 
         // [HttpPut("{id}")]
         // public async Task<ActionResult<Space>> Update(int id, Space space)
