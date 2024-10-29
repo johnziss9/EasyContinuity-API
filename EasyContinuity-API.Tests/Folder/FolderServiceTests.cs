@@ -54,7 +54,8 @@ public class FolderServiceTests
         {
             context.Folders.AddRange(
                 new Models.Folder { Name = "Folder 1", Description = "Description 1", SpaceId = spaceId },
-                new Models.Folder { Name = "Folder 2", Description = "Description 2", SpaceId = spaceId }
+                new Models.Folder { Name = "Folder 2", Description = "Description 2", SpaceId = spaceId },
+                new Models.Folder { Name = "Folder 3", Description = "Description 3", SpaceId = 3 }
             );
             await context.SaveChangesAsync();
         }
@@ -72,6 +73,7 @@ public class FolderServiceTests
             Assert.Equal(2, result.Data.Count);
             Assert.Contains(result.Data, s => s.Name == "Folder 1");
             Assert.Contains(result.Data, s => s.Name == "Folder 2");
+            Assert.DoesNotContain(result.Data, s => s.Name == "Folder 3");
         }
     }
 
