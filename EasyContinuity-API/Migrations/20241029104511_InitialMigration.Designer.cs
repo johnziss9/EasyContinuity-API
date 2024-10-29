@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EasyContinuity_API.Migrations
 {
     [DbContext(typeof(ECDbContext))]
-    [Migration("20241027235719_InitialMigration")]
+    [Migration("20241029104511_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -48,7 +48,7 @@ namespace EasyContinuity_API.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("LastUpdatedBy")
+                    b.Property<int?>("LastUpdatedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("LastUpdatedOn")

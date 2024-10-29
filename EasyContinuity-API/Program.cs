@@ -17,6 +17,7 @@ builder.Services.AddDbContext<ECDbContext>(options =>
 builder.Services.AddScoped<ISpaceService, SpaceService>();
 builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<ISnapshotService, SnapshotService>();
+builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 
 var app = builder.Build();
 
