@@ -22,11 +22,35 @@ namespace EasyContinuity_API.Controllers
             return ResponseHelper.HandleErrorAndReturn(await _attachmentService.CreateAttachment(attachment));
         }
 
-        // [HttpGet("space/{spaceId}")]
-        // public async Task<ActionResult<List<Folder>>> GetAllBySpace(int spaceId)
-        // {
-        //     return ResponseHelper.HandleErrorAndReturn(await _folderService.GetAllFoldersBySpaceId(spaceId));
-        // }
+        [HttpGet("space/{spaceId}")]
+        public async Task<ActionResult<List<Attachment>>> GetAllBySpace(int spaceId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _attachmentService.GetAllAttachmentsBySpaceId(spaceId));
+        }
+
+        [HttpGet("folder/{folderId}")]
+        public async Task<ActionResult<List<Attachment>>> GetAllByFolder(int folderId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _attachmentService.GetAllAttachmentsByFolderId(folderId));
+        }
+
+        [HttpGet("snapshot/{snapshotId}")]
+        public async Task<ActionResult<List<Attachment>>> GetAllBySnapshot(int snapshotId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _attachmentService.GetAllAttachmentsBySnapshotId(snapshotId));
+        }
+
+        [HttpGet("space/{spaceId}/root")]
+        public async Task<ActionResult<List<Attachment>>> GetAllRootBySpace(int spaceId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _attachmentService.GetAllRootAttachmentsBySpaceId(spaceId));
+        }
+
+        [HttpGet("{attachmentId}")]
+        public async Task<ActionResult<Attachment>> GetSingle(int attachmentId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _attachmentService.GetSingleAttachmentById(attachmentId));
+        }
 
         // [HttpPut("{id}")]
         // public async Task<ActionResult<Folder>> Update(int id, Folder folder)

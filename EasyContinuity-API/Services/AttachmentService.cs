@@ -23,12 +23,45 @@ namespace EasyContinuity_API.Services
             return Response<Attachment>.Success(attachment);
         }
 
-        // public async Task<Response<List<Folder>>> GetAllFoldersBySpaceId(int spaceId)
-        // {
-        //     var folders = await _ecDbContext.Folders.Where(s => s.SpaceId == spaceId).ToListAsync();
+        public async Task<Response<List<Attachment>>> GetAllAttachmentsBySpaceId(int spaceId)
+        {
+            var attachments = await _ecDbContext.Attachments.Where(s => s.SpaceId == spaceId).ToListAsync();
 
-        //     return Response<List<Folder>>.Success(folders);
-        // }
+            return Response<List<Attachment>>.Success(attachments);
+        }
+
+        public async Task<Response<List<Attachment>>> GetAllAttachmentsByFolderId(int folderId)
+        {
+            var attachments = await _ecDbContext.Attachments.Where(s => s.FolderId == folderId).ToListAsync();
+
+            return Response<List<Attachment>>.Success(attachments);
+        }
+
+        public async Task<Response<List<Attachment>>> GetAllAttachmentsBySnapshotId(int snapshotId)
+        {
+            var attachments = await _ecDbContext.Attachments.Where(s => s.SnapshotId == snapshotId).ToListAsync();
+
+            return Response<List<Attachment>>.Success(attachments);
+        }
+
+        public async Task<Response<List<Attachment>>> GetAllRootAttachmentsBySpaceId(int spaceId)
+        {
+            var attachments = await _ecDbContext.Attachments.Where(s => s.SpaceId == spaceId && s.FolderId == null).ToListAsync();
+
+            return Response<List<Attachment>>.Success(attachments);
+        }
+
+        public async Task<Response<Attachment>> GetSingleAttachmentById(int attachmentId)
+        {
+            var attachment = await _ecDbContext.Attachments.Where(a => a.Id == attachmentId).FirstOrDefaultAsync();
+
+            if (attachment == null)
+            {
+                return Response<Attachment>.Fail(404, "Attachment Not Found");
+            }
+
+            return Response<Attachment>.Success(attachment);
+        }
 
         // public async Task<Response<Folder>> UpdateFolder(int id, Folder updatedFolder)
         // {

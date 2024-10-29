@@ -7,7 +7,15 @@ namespace EasyContinuity_API.Interfaces
     {
         Task<Response<Attachment>> CreateAttachment(Attachment attachment);
 
-        // Task<Response<List<Folder>>> GetAllFoldersBySpaceId(int spaceId);
+        Task<Response<List<Attachment>>> GetAllAttachmentsBySpaceId(int spaceId);
+
+        Task<Response<List<Attachment>>> GetAllAttachmentsByFolderId(int folderId);
+
+        Task<Response<List<Attachment>>> GetAllAttachmentsBySnapshotId(int snapshotId);
+
+        Task<Response<List<Attachment>>> GetAllRootAttachmentsBySpaceId(int spaceId);
+
+        Task<Response<Attachment>> GetSingleAttachmentById(int attachmentId);
 
         // Task<Response<Folder>> UpdateFolder(int id, Folder updatedFolder);
     }
