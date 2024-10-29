@@ -1,3 +1,4 @@
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Interfaces;
 using EasyContinuity_API.Models;
@@ -52,10 +53,10 @@ namespace EasyContinuity_API.Controllers
             return ResponseHelper.HandleErrorAndReturn(await _attachmentService.GetSingleAttachmentById(attachmentId));
         }
 
-        // [HttpPut("{id}")]
-        // public async Task<ActionResult<Folder>> Update(int id, Folder folder)
-        // {
-        //     return ResponseHelper.HandleErrorAndReturn(await _folderService.UpdateFolder(id, folder));
-        // }
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Attachment>> Update(int id, AttachmentUpdateDTO updatedAttachmentDTO)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _attachmentService.UpdateAttachment(id, updatedAttachmentDTO));
+        }
     }
 }

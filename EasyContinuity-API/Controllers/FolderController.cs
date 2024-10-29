@@ -1,3 +1,4 @@
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Interfaces;
 using EasyContinuity_API.Models;
@@ -29,9 +30,9 @@ namespace EasyContinuity_API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Folder>> Update(int id, Folder folder)
+        public async Task<ActionResult<Folder>> Update(int id, FolderUpdateDto updatedFolderDTO)
         {
-            return ResponseHelper.HandleErrorAndReturn(await _folderService.UpdateFolder(id, folder));
+            return ResponseHelper.HandleErrorAndReturn(await _folderService.UpdateFolder(id, updatedFolderDTO));
         }
     }
 }

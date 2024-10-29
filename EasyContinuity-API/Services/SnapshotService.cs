@@ -1,4 +1,5 @@
 using EasyContinuity_API.Data;
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Interfaces;
 using EasyContinuity_API.Models;
@@ -56,130 +57,47 @@ namespace EasyContinuity_API.Services
             return Response<Snapshot>.Success(snapshot);
         }
 
-        public async Task<Response<Snapshot>> UpdateSnapshot(int id, Snapshot updatedSnapshot)
+        public async Task<Response<Snapshot>> UpdateSnapshot(int id, SnapshotUpdateDTO updatedSnapshotDTO)
         {
-            var snapshot = await _ecDbContext.Snapshots.Where(s => s.Id == id).FirstOrDefaultAsync();
+            var existingSnapshot = await _ecDbContext.Snapshots.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
 
-            if (snapshot == null)
+            if (existingSnapshot == null)
             {
                 return Response<Snapshot>.Fail(404, "Snapshot Not Found");
             }
 
-            if (updatedSnapshot.Name != null && updatedSnapshot.Name != snapshot.Name)
+            var snapshot = new Snapshot
             {
-                snapshot.Name = updatedSnapshot.Name;
-            }
+                Id = id,
+                SpaceId = existingSnapshot.SpaceId,
+                FolderId = updatedSnapshotDTO.FolderId ?? existingSnapshot.FolderId,
+                Name = updatedSnapshotDTO.Name ?? existingSnapshot.Name,
+                IsDeleted = updatedSnapshotDTO.IsDeleted ?? existingSnapshot.IsDeleted,
+                CreatedBy = existingSnapshot.CreatedBy,
+                CreatedOn = existingSnapshot.CreatedOn,
+                LastUpdatedBy = updatedSnapshotDTO.LastUpdatedBy ?? existingSnapshot.LastUpdatedBy,
+                LastUpdatedOn = updatedSnapshotDTO.LastUpdatedOn ?? existingSnapshot.LastUpdatedOn,
+                DeletedOn = updatedSnapshotDTO.DeletedOn ?? existingSnapshot.DeletedOn,
+                DeletedBy = updatedSnapshotDTO.DeletedBy ?? existingSnapshot.DeletedBy,
+                Episode = updatedSnapshotDTO.Effects ?? existingSnapshot.Episode,
+                Scene = updatedSnapshotDTO.Scene ?? existingSnapshot.Scene,
+                StoryDay = updatedSnapshotDTO.StoryDay ?? existingSnapshot.StoryDay,
+                Character = updatedSnapshotDTO.Character ?? existingSnapshot.Character,
+                Notes = updatedSnapshotDTO.Notes ?? existingSnapshot.Notes,
+                Skin = updatedSnapshotDTO.Skin ?? existingSnapshot.Skin,
+                Brows = updatedSnapshotDTO.Brows ?? existingSnapshot.Brows,
+                Eyes = updatedSnapshotDTO.Eyes ?? existingSnapshot.Eyes,
+                Lips = updatedSnapshotDTO.Lips ?? existingSnapshot.Lips,
+                Effects = updatedSnapshotDTO.Effects ?? existingSnapshot.Effects,
+                MakeupNotes = updatedSnapshotDTO.MakeupNotes ?? existingSnapshot.MakeupNotes,
+                Prep = updatedSnapshotDTO.Prep ?? existingSnapshot.Prep,
+                Method = updatedSnapshotDTO.Method ?? existingSnapshot.Method,
+                StylingTools = updatedSnapshotDTO.StylingTools ?? existingSnapshot.StylingTools,
+                Products = updatedSnapshotDTO.Products ?? existingSnapshot.Products,
+                HairNotes = updatedSnapshotDTO.HairNotes ?? existingSnapshot.HairNotes
+            };
 
-            if (updatedSnapshot.FolderId != null && updatedSnapshot.FolderId != snapshot.FolderId)
-            {
-                snapshot.FolderId = updatedSnapshot.FolderId;
-            }
-
-            if (updatedSnapshot.IsDeleted != snapshot.IsDeleted)
-            {
-                snapshot.IsDeleted = updatedSnapshot.IsDeleted;
-            }
-
-            if (updatedSnapshot.LastUpdatedBy != null && updatedSnapshot.LastUpdatedBy != snapshot.LastUpdatedBy)
-            {
-                snapshot.LastUpdatedBy = updatedSnapshot.LastUpdatedBy;
-            }
-
-            if (updatedSnapshot.LastUpdatedOn != null && updatedSnapshot.LastUpdatedOn != snapshot.LastUpdatedOn)
-            {
-                snapshot.LastUpdatedOn = updatedSnapshot.LastUpdatedOn;
-            }
-
-            if (updatedSnapshot.DeletedOn != null && updatedSnapshot.DeletedOn != snapshot.DeletedOn)
-            {
-                snapshot.DeletedOn = updatedSnapshot.DeletedOn;
-            }
-
-            if (updatedSnapshot.DeletedBy != null && updatedSnapshot.DeletedBy != snapshot.DeletedBy)
-            {
-                snapshot.DeletedBy = updatedSnapshot.DeletedBy;
-            }
-
-            if (updatedSnapshot.Episode != null && updatedSnapshot.Episode != snapshot.Episode)
-            {
-                snapshot.Episode = updatedSnapshot.Episode;
-            }
-
-            if (updatedSnapshot.Scene != null && updatedSnapshot.Scene != snapshot.Scene)
-            {
-                snapshot.Scene = updatedSnapshot.Scene;
-            }
-
-            if (updatedSnapshot.StoryDay != null && updatedSnapshot.StoryDay != snapshot.StoryDay)
-            {
-                snapshot.StoryDay = updatedSnapshot.StoryDay;
-            }
-
-            if (updatedSnapshot.Character != null && updatedSnapshot.Character != snapshot.Character)
-            {
-                snapshot.Character = updatedSnapshot.Character;
-            }
-
-            if (updatedSnapshot.Notes != null && updatedSnapshot.Notes != snapshot.Notes)
-            {
-                snapshot.Notes = updatedSnapshot.Notes;
-            }
-
-            if (updatedSnapshot.Skin != null && updatedSnapshot.Skin != snapshot.Skin)
-            {
-                snapshot.Skin = updatedSnapshot.Skin;
-            }
-
-            if (updatedSnapshot.Brows != null && updatedSnapshot.Brows != snapshot.Brows)
-            {
-                snapshot.Brows = updatedSnapshot.Brows;
-            }
-
-            if (updatedSnapshot.Eyes != null && updatedSnapshot.Eyes != snapshot.Eyes)
-            {
-                snapshot.Eyes = updatedSnapshot.Eyes;
-            }
-
-            if (updatedSnapshot.Lips != null && updatedSnapshot.Lips != snapshot.Lips)
-            {
-                snapshot.Lips = updatedSnapshot.Lips;
-            }
-
-            if (updatedSnapshot.Effects != null && updatedSnapshot.Effects != snapshot.Effects)
-            {
-                snapshot.Effects = updatedSnapshot.Effects;
-            }
-
-            if (updatedSnapshot.MakeupNotes != null && updatedSnapshot.MakeupNotes != snapshot.MakeupNotes)
-            {
-                snapshot.MakeupNotes = updatedSnapshot.MakeupNotes;
-            }
-
-            if (updatedSnapshot.Prep != null && updatedSnapshot.Prep != snapshot.Prep)
-            {
-                snapshot.Prep = updatedSnapshot.Prep;
-            }
-
-            if (updatedSnapshot.Method != null && updatedSnapshot.Method != snapshot.Method)
-            {
-                snapshot.Method = updatedSnapshot.Method;
-            }
-
-            if (updatedSnapshot.StylingTools != null && updatedSnapshot.StylingTools != snapshot.StylingTools)
-            {
-                snapshot.StylingTools = updatedSnapshot.StylingTools;
-            }
-
-            if (updatedSnapshot.Products != null && updatedSnapshot.Products != snapshot.Products)
-            {
-                snapshot.Products = updatedSnapshot.Products;
-            }
-
-            if (updatedSnapshot.HairNotes != null && updatedSnapshot.HairNotes != snapshot.HairNotes)
-            {
-                snapshot.HairNotes = updatedSnapshot.HairNotes;
-            }
-
+            _ecDbContext.Snapshots.Update(snapshot);
             await _ecDbContext.SaveChangesAsync();
 
             return Response<Snapshot>.Success(snapshot);
