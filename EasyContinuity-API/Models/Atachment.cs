@@ -18,6 +18,7 @@ namespace EasyContinuity_API.Models
         [Required(ErrorMessage = "Path is required.")]
         public string Path { get; set; } = "";
 
+        [Required(ErrorMessage = "Size is required.")]
         public int Size { get; set; }
 
         [Required(ErrorMessage = "MIME Type is required.")]
@@ -27,7 +28,7 @@ namespace EasyContinuity_API.Models
 
         public int AddedBy { get; set; }
 
-        public int LastUpdatedBy { get; set; }
+        public int? LastUpdatedBy { get; set; }
 
         public DateTime AddedOn { get; set; } = DateTime.UtcNow;
 

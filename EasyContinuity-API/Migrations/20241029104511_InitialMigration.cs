@@ -168,7 +168,7 @@ namespace EasyContinuity_API.Migrations
                     MimeType = table.Column<string>(type: "text", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     AddedBy = table.Column<int>(type: "integer", nullable: false),
-                    LastUpdatedBy = table.Column<int>(type: "integer", nullable: false),
+                    LastUpdatedBy = table.Column<int>(type: "integer", nullable: true),
                     AddedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     DeletedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)

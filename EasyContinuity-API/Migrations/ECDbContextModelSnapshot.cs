@@ -45,7 +45,7 @@ namespace EasyContinuity_API.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("LastUpdatedBy")
+                    b.Property<int?>("LastUpdatedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("LastUpdatedOn")
