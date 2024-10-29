@@ -79,7 +79,7 @@ namespace EasyContinuity_API.Services
                 LastUpdatedOn = updatedSnapshotDTO.LastUpdatedOn ?? existingSnapshot.LastUpdatedOn,
                 DeletedOn = updatedSnapshotDTO.DeletedOn ?? existingSnapshot.DeletedOn,
                 DeletedBy = updatedSnapshotDTO.DeletedBy ?? existingSnapshot.DeletedBy,
-                Episode = updatedSnapshotDTO.Effects ?? existingSnapshot.Episode,
+                Episode = updatedSnapshotDTO.Episode ?? existingSnapshot.Episode,
                 Scene = updatedSnapshotDTO.Scene ?? existingSnapshot.Scene,
                 StoryDay = updatedSnapshotDTO.StoryDay ?? existingSnapshot.StoryDay,
                 Character = updatedSnapshotDTO.Character ?? existingSnapshot.Character,
