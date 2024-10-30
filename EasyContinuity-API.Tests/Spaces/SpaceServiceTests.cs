@@ -3,7 +3,7 @@ using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Services;
 using Microsoft.EntityFrameworkCore;
 
-namespace EasyContinuity_API.Tests.Space;
+namespace EasyContinuity_API.Tests.Spaces;
 
 public class SpaceServiceTests
 {
