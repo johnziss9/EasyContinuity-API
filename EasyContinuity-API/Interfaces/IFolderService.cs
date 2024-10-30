@@ -10,6 +10,6 @@ namespace EasyContinuity_API.Interfaces
 
         Task<Response<List<Folder>>> GetAllFoldersBySpaceId(int spaceId);
 
-        Task<Response<Folder>> UpdateFolder(int id, FolderUpdateDto updatedFolderDTO);
+        Task<Response<Folder>> UpdateFolder(int id, FolderUpdateDTO updatedFolderDTO);
     }
 }
