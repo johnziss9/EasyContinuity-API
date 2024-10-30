@@ -5,7 +5,7 @@ using EasyContinuity_API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace EasyContinuity_API.Tests.Folder;
+namespace EasyContinuity_API.Tests.Folders;
 
 public class FolderControllerTests
 {

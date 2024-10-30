@@ -5,7 +5,7 @@ using EasyContinuity_API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace EasyContinuity_API.Tests.Space;
+namespace EasyContinuity_API.Tests.Spaces;
 
 public class SpaceControllerTests
 {
