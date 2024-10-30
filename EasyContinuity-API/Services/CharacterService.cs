@@ -37,7 +37,7 @@ namespace EasyContinuity_API.Services
 
             if (existingCharacter == null)
             {
-                return Response<Character>.Fail(404, "Space Not Found");
+                return Response<Character>.Fail(404, "Character Not Found");
             }
 
             var character = new Character
