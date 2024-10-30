@@ -41,5 +41,5 @@ jobs:
           git pull origin main
           git checkout dev
           git merge main
-        #   docker compose -f docker-compose.preprod.yml down
-        #   docker compose -f docker-compose.dev.yml up -d --build
+          docker compose -f docker-compose.preprod.yml down
+          docker compose -f docker-compose.dev.yml --env-file .env.dev up --build -d
