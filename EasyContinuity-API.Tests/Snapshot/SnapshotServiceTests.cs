@@ -225,7 +225,7 @@ public class SnapshotServiceTests
         using (var context = CreateContext(dbName))
         {
             var service = new SnapshotService(context);
-            var updatedSnapshot = new DTOs.SnapshotUpdateDTO
+            var updatedSnapshot = new SnapshotUpdateDTO
             {
                 Name = "Updated Name",
                 Character = 5,
