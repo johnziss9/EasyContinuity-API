@@ -1,5 +1,6 @@
 using EasyContinuity_API.Controllers;
 using EasyContinuity_API.Data;
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -229,7 +230,7 @@ public class SnapshotControllerTests
         {
             var service = new SnapshotService(context);
             var controller = new SnapshotController(service);
-            var updatedSnapshot = new Models.Snapshot 
+            var updatedSnapshot = new SnapshotUpdateDTO 
             { 
                 Name = "Updated Name",
                 Character = 2,
@@ -260,7 +261,7 @@ public class SnapshotControllerTests
         using var context = CreateContext("UpdateSnapshotInvalidControllerTest");
         var service = new SnapshotService(context);
         var controller = new SnapshotController(service);
-        var snapshot = new Models.Snapshot 
+        var snapshot = new SnapshotUpdateDTO 
         { 
             Name = "Test Snapshot",
             Character = 3 

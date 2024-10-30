@@ -1,4 +1,5 @@
 using EasyContinuity_API.Data;
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -96,7 +97,7 @@ public class SpaceServiceTests
         using (var context = CreateContext(dbName))
         {
             var service = new SpaceService(context);
-            var updatedSpace = new Models.Space
+            var updatedSpace = new SpaceUpdateDto
             {
                 Name = "Updated Name",
                 Description = "Updated Description",
@@ -129,7 +130,7 @@ public class SpaceServiceTests
         // Arrange
         using var context = CreateContext("UpdateSpaceInvalidTest");
         var service = new SpaceService(context);
-        var updatedSpace = new Models.Space 
+        var updatedSpace = new SpaceUpdateDto 
         { 
             Name = "Updated Name",
             Description = "Updated Description" 
@@ -169,7 +170,7 @@ public class SpaceServiceTests
         using (var context = CreateContext(dbName))
         {
             var service = new SpaceService(context);
-            var updatedSpace = new Models.Space
+            var updatedSpace = new SpaceUpdateDto
             {
                 Name = "Original Name",
                 Description = "Original Description"
