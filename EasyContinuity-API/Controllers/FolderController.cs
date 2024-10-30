@@ -30,7 +30,7 @@ namespace EasyContinuity_API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Folder>> Update(int id, FolderUpdateDto updatedFolderDTO)
+        public async Task<ActionResult<Folder>> Update(int id, FolderUpdateDTO updatedFolderDTO)
         {
             return ResponseHelper.HandleErrorAndReturn(await _folderService.UpdateFolder(id, updatedFolderDTO));
         }

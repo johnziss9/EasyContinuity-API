@@ -31,7 +31,7 @@ namespace EasyContinuity_API.Services
             return Response<List<Space>>.Success(spaces);
         }
 
-        public async Task<Response<Space>> UpdateSpace(int id, SpaceUpdateDto updatedSpaceDTO)
+        public async Task<Response<Space>> UpdateSpace(int id, SpaceUpdateDTO updatedSpaceDTO)
         {
             var existingSpace = await _ecDbContext.Spaces.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
 

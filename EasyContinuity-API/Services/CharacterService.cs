@@ -31,33 +31,33 @@ namespace EasyContinuity_API.Services
             return Response<List<Character>>.Success(characters);
         }
 
-        // public async Task<Response<Space>> UpdateSpace(int id, SpaceUpdateDto updatedSpaceDTO)
-        // {
-        //     var existingSpace = await _ecDbContext.Spaces.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+        public async Task<Response<Character>> UpdateCharacter(int id, CharacterUpdateDTO updatedCharacterDTO)
+        {
+            var existingCharacter = await _ecDbContext.Characters.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
 
-        //     if (existingSpace == null)
-        //     {
-        //         return Response<Space>.Fail(404, "Space Not Found");
-        //     }
+            if (existingCharacter == null)
+            {
+                return Response<Character>.Fail(404, "Space Not Found");
+            }
 
-        //     var space = new Space
-        //     {
-        //         Id = id,
-        //         Name = updatedSpaceDTO.Name ?? existingSpace.Name,
-        //         Description = updatedSpaceDTO.Description ?? existingSpace.Description,
-        //         IsDeleted = updatedSpaceDTO.IsDeleted ?? existingSpace.IsDeleted,
-        //         CreatedBy = existingSpace.CreatedBy,
-        //         CreatedOn = existingSpace.CreatedOn,
-        //         LastUpdatedBy = updatedSpaceDTO.LastUpdatedBy ?? existingSpace.LastUpdatedBy,
-        //         LastUpdatedOn = updatedSpaceDTO.LastUpdatedOn ?? existingSpace.LastUpdatedOn,
-        //         DeletedOn = updatedSpaceDTO.DeletedOn ?? existingSpace.DeletedOn,
-        //         DeletedBy = updatedSpaceDTO.DeletedBy ?? existingSpace.DeletedBy
-        //     };
+            var character = new Character
+            {
+                Id = id,
+                SpaceId = existingCharacter.SpaceId,
+                Name = updatedCharacterDTO.Name ?? existingCharacter.Name,
+                IsDeleted = updatedCharacterDTO.IsDeleted ?? existingCharacter.IsDeleted,
+                CreatedBy = existingCharacter.CreatedBy,
+                CreatedOn = existingCharacter.CreatedOn,
+                LastUpdatedBy = updatedCharacterDTO.LastUpdatedBy ?? existingCharacter.LastUpdatedBy,
+                LastUpdatedOn = updatedCharacterDTO.LastUpdatedOn ?? existingCharacter.LastUpdatedOn,
+                DeletedOn = updatedCharacterDTO.DeletedOn ?? existingCharacter.DeletedOn,
+                DeletedBy = updatedCharacterDTO.DeletedBy ?? existingCharacter.DeletedBy
+            };
             
-        //     _ecDbContext.Spaces.Update(space);
-        //     await _ecDbContext.SaveChangesAsync();
+            _ecDbContext.Characters.Update(character);
+            await _ecDbContext.SaveChangesAsync();
 
-        //     return Response<Space>.Success(space);
-        // }
+            return Response<Character>.Success(character);
+        }
     }
 }

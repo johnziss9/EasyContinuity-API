@@ -1,11 +1,9 @@
 namespace EasyContinuity_API.DTOs
 {
-    public class SpaceUpdateDTO
+    public class CharacterUpdateDTO
     {        
         public string? Name { get; set; }
-        
-        public string? Description { get; set; }
-        
+                
         public bool? IsDeleted { get; set; }
         
         public int? LastUpdatedBy { get; set; }
