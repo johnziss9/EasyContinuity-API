@@ -1,3 +1,4 @@
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Interfaces;
 using EasyContinuity_API.Models;
@@ -29,9 +30,9 @@ namespace EasyContinuity_API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Space>> Update(int id, Space space)
+        public async Task<ActionResult<Space>> Update(int id, SpaceUpdateDto updatedSpaceDTO)
         {
-            return ResponseHelper.HandleErrorAndReturn(await _spaceService.UpdateSpace(id, space));
+            return ResponseHelper.HandleErrorAndReturn(await _spaceService.UpdateSpace(id, updatedSpaceDTO));
         }
     }
 }

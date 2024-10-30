@@ -1,3 +1,4 @@
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Models;
 
@@ -9,6 +10,6 @@ namespace EasyContinuity_API.Interfaces
 
         Task<Response<List<Folder>>> GetAllFoldersBySpaceId(int spaceId);
 
-        Task<Response<Folder>> UpdateFolder(int id, Folder updatedFolder);
+        Task<Response<Folder>> UpdateFolder(int id, FolderUpdateDto updatedFolderDTO);
     }
 }

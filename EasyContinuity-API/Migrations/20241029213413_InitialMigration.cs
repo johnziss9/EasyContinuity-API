@@ -171,7 +171,8 @@ namespace EasyContinuity_API.Migrations
                     LastUpdatedBy = table.Column<int>(type: "integer", nullable: true),
                     AddedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DeletedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DeletedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {

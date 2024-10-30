@@ -1,4 +1,5 @@
 using EasyContinuity_API.Data;
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Interfaces;
 using EasyContinuity_API.Models;
@@ -30,60 +31,32 @@ namespace EasyContinuity_API.Services
             return Response<List<Folder>>.Success(folders);
         }
 
-        public async Task<Response<Folder>> UpdateFolder(int id, Folder updatedFolder)
+        public async Task<Response<Folder>> UpdateFolder(int id, FolderUpdateDto updatedFolderDTO)
         {
-            var folder = await _ecDbContext.Folders.Where(f => f.Id == id).FirstOrDefaultAsync();
+            var existingFolder = await _ecDbContext.Folders.AsNoTracking().FirstOrDefaultAsync(f => f.Id == id);
 
-            if (folder == null)
+            if (existingFolder == null)
             {
                 return Response<Folder>.Fail(404, "Folder Not Found");
             }
 
-            if (updatedFolder.SpaceId != 0 && updatedFolder.SpaceId != folder.SpaceId)
+            var folder = new Folder
             {
-                folder.SpaceId = updatedFolder.SpaceId;
-            }
+                Id = id,
+                SpaceId = existingFolder.SpaceId,
+                ParentId = updatedFolderDTO.ParentId ?? existingFolder.ParentId,
+                Name = updatedFolderDTO.Name ?? existingFolder.Name,
+                Description = updatedFolderDTO.Description ?? existingFolder.Description,
+                IsDeleted = updatedFolderDTO.IsDeleted ?? existingFolder.IsDeleted,
+                CreatedBy = existingFolder.CreatedBy,
+                CreatedOn = existingFolder.CreatedOn,
+                LastUpdatedBy = updatedFolderDTO.LastUpdatedBy ?? existingFolder.LastUpdatedBy,
+                LastUpdatedOn = updatedFolderDTO.LastUpdatedOn ?? existingFolder.LastUpdatedOn,
+                DeletedOn = updatedFolderDTO.DeletedOn ?? existingFolder.DeletedOn,
+                DeletedBy = updatedFolderDTO.DeletedBy ?? existingFolder.DeletedBy
+            };
 
-            if (updatedFolder.ParentId != null && updatedFolder.ParentId != folder.ParentId)
-            {
-                folder.ParentId = updatedFolder.ParentId;
-            }
-
-            if (updatedFolder.Name != null && updatedFolder.Name != folder.Name)
-            {
-                folder.Name = updatedFolder.Name;
-            }
-
-            if (updatedFolder.Description != null && updatedFolder.Description != folder.Description)
-            {
-                folder.Description = updatedFolder.Description;
-            }
-
-            if (updatedFolder.IsDeleted != folder.IsDeleted)
-            {
-                folder.IsDeleted = updatedFolder.IsDeleted;
-            }
-
-            if (updatedFolder.LastUpdatedBy != null && updatedFolder.LastUpdatedBy != folder.LastUpdatedBy)
-            {
-                folder.LastUpdatedBy = updatedFolder.LastUpdatedBy;
-            }
-
-            if (updatedFolder.LastUpdatedOn != null && updatedFolder.LastUpdatedOn != folder.LastUpdatedOn)
-            {
-                folder.LastUpdatedOn = updatedFolder.LastUpdatedOn;
-            }
-
-            if (updatedFolder.DeletedOn != null && updatedFolder.DeletedOn != folder.DeletedOn)
-            {
-                folder.DeletedOn = updatedFolder.DeletedOn;
-            }
-
-            if (updatedFolder.DeletedBy != null && updatedFolder.DeletedBy != folder.DeletedBy)
-            {
-                folder.DeletedBy = updatedFolder.DeletedBy;
-            }
-
+            _ecDbContext.Folders.Update(folder);
             await _ecDbContext.SaveChangesAsync();
 
             return Response<Folder>.Success(folder);

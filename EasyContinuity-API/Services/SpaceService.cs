@@ -1,4 +1,5 @@
 using EasyContinuity_API.Data;
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Interfaces;
 using EasyContinuity_API.Models;
@@ -30,50 +31,30 @@ namespace EasyContinuity_API.Services
             return Response<List<Space>>.Success(spaces);
         }
 
-        public async Task<Response<Space>> UpdateSpace(int id, Space updatedSpace)
+        public async Task<Response<Space>> UpdateSpace(int id, SpaceUpdateDto updatedSpaceDTO)
         {
-            var space = await _ecDbContext.Spaces.Where(s => s.Id == id).FirstOrDefaultAsync();
+            var existingSpace = await _ecDbContext.Spaces.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
 
-            if (space == null)
+            if (existingSpace == null)
             {
                 return Response<Space>.Fail(404, "Space Not Found");
             }
 
-            if (updatedSpace.Name != null && updatedSpace.Name != space.Name)
+            var space = new Space
             {
-                space.Name = updatedSpace.Name;
-            }
-
-            if (updatedSpace.Description != null && updatedSpace.Description != space.Description)
-            {
-                space.Description = updatedSpace.Description;
-            }
-
-            if (updatedSpace.IsDeleted != space.IsDeleted)
-            {
-                space.IsDeleted = updatedSpace.IsDeleted;
-            }
-
-            if (updatedSpace.LastUpdatedBy != null && updatedSpace.LastUpdatedBy != space.LastUpdatedBy)
-            {
-                space.LastUpdatedBy = updatedSpace.LastUpdatedBy;
-            }
-
-            if (updatedSpace.LastUpdatedOn != null && updatedSpace.LastUpdatedOn != space.LastUpdatedOn)
-            {
-                space.LastUpdatedOn = updatedSpace.LastUpdatedOn;
-            }
-
-            if (updatedSpace.DeletedOn != null && updatedSpace.DeletedOn != space.DeletedOn)
-            {
-                space.DeletedOn = updatedSpace.DeletedOn;
-            }
-
-            if (updatedSpace.DeletedBy != null && updatedSpace.DeletedBy != space.DeletedBy)
-            {
-                space.DeletedBy = updatedSpace.DeletedBy;
-            }
-
+                Id = id,
+                Name = updatedSpaceDTO.Name ?? existingSpace.Name,
+                Description = updatedSpaceDTO.Description ?? existingSpace.Description,
+                IsDeleted = updatedSpaceDTO.IsDeleted ?? existingSpace.IsDeleted,
+                CreatedBy = existingSpace.CreatedBy,
+                CreatedOn = existingSpace.CreatedOn,
+                LastUpdatedBy = updatedSpaceDTO.LastUpdatedBy ?? existingSpace.LastUpdatedBy,
+                LastUpdatedOn = updatedSpaceDTO.LastUpdatedOn ?? existingSpace.LastUpdatedOn,
+                DeletedOn = updatedSpaceDTO.DeletedOn ?? existingSpace.DeletedOn,
+                DeletedBy = updatedSpaceDTO.DeletedBy ?? existingSpace.DeletedBy
+            };
+            
+            _ecDbContext.Spaces.Update(space);
             await _ecDbContext.SaveChangesAsync();
 
             return Response<Space>.Success(space);

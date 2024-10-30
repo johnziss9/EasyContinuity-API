@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EasyContinuity_API.Migrations
 {
     [DbContext(typeof(ECDbContext))]
-    [Migration("20241029104511_InitialMigration")]
+    [Migration("20241029213413_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -38,6 +38,9 @@ namespace EasyContinuity_API.Migrations
 
                     b.Property<DateTime>("AddedOn")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("timestamp with time zone");

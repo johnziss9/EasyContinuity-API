@@ -1,4 +1,5 @@
 using EasyContinuity_API.Data;
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -100,7 +101,7 @@ public class FolderServiceTests
         using (var context = CreateContext(dbName))
         {
             var service = new FolderService(context);
-            var updatedFolder = new Models.Folder
+            var updatedFolder = new FolderUpdateDto
             {
                 Name = "Updated Name",
                 Description = "Updated Description",
@@ -133,7 +134,7 @@ public class FolderServiceTests
         // Arrange
         using var context = CreateContext("UpdateFolderInvalidTest");
         var service = new FolderService(context);
-        var updatedFolder = new Models.Folder 
+        var updatedFolder = new FolderUpdateDto 
         { 
             Name = "Updated Name",
             Description = "Updated Description" 
@@ -173,7 +174,7 @@ public class FolderServiceTests
         using (var context = CreateContext(dbName))
         {
             var service = new FolderService(context);
-            var updatedFolder = new Models.Folder
+            var updatedFolder = new FolderUpdateDto
             {
                 Name = "Original Name",
                 Description = "Original Description"
