@@ -5,7 +5,7 @@ using EasyContinuity_API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace EasyContinuity_API.Tests.Snapshot;
+namespace EasyContinuity_API.Tests.Snapshots;
 
 public class SnapshotControllerTests
 {
