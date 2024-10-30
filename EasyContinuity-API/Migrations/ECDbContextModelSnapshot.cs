@@ -36,6 +36,9 @@ namespace EasyContinuity_API.Migrations
                     b.Property<DateTime>("AddedOn")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("timestamp with time zone");
 

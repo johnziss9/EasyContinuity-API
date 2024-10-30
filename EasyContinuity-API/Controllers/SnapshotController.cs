@@ -1,3 +1,4 @@
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Interfaces;
 using EasyContinuity_API.Models;
@@ -47,9 +48,9 @@ namespace EasyContinuity_API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Snapshot>> Update(int id, Snapshot snapshot)
+        public async Task<ActionResult<Snapshot>> Update(int id, SnapshotUpdateDTO updatedSnapshotDTO)
         {
-            return ResponseHelper.HandleErrorAndReturn(await _snapshotService.UpdateSnapshot(id, snapshot));
+            return ResponseHelper.HandleErrorAndReturn(await _snapshotService.UpdateSnapshot(id, updatedSnapshotDTO));
         }
     }
 }
