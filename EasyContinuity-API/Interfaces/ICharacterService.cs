@@ -8,7 +8,7 @@ namespace EasyContinuity_API.Interfaces
     {
         Task<Response<Character>> CreateCharacter(Character character);
 
-        // Task<Response<List<Space>>> GetAllSpaces();
+        Task<Response<List<Character>>> GetAllCharactersBySpaceId(int spaceId);
 
         // Task<Response<Space>> UpdateSpace(int id, SpaceUpdateDto updatedSpaceDTO);
     }
