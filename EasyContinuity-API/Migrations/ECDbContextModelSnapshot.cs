@@ -115,6 +115,9 @@ namespace EasyContinuity_API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("SpaceId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.ToTable("Characters");
