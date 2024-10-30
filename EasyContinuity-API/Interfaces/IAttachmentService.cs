@@ -1,3 +1,4 @@
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Models;
 
@@ -17,6 +18,6 @@ namespace EasyContinuity_API.Interfaces
 
         Task<Response<Attachment>> GetSingleAttachmentById(int attachmentId);
 
-        // Task<Response<Folder>> UpdateFolder(int id, Folder updatedFolder);
+        Task<Response<Attachment>> UpdateAttachment(int id, AttachmentUpdateDTO updatedAttachmentDTO);
     }
 }

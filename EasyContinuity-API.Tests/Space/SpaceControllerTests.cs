@@ -1,5 +1,6 @@
 using EasyContinuity_API.Controllers;
 using EasyContinuity_API.Data;
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -103,7 +104,7 @@ public class SpaceControllerTests
         {
             var service = new SpaceService(context);
             var controller = new SpaceController(service);
-            var updatedSpace = new Models.Space 
+            var updatedSpace = new SpaceUpdateDto 
             { 
                 Name = "Updated Name",
                 Description = "Updated Description" 
@@ -131,7 +132,7 @@ public class SpaceControllerTests
         using var context = CreateContext("UpdateControllerInvalidTest");
         var service = new SpaceService(context);
         var controller = new SpaceController(service);
-        var space = new Models.Space 
+        var space = new SpaceUpdateDto 
         { 
             Name = "Test Space",
             Description = "Test Description" 

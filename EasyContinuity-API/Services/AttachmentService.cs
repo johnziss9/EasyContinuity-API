@@ -1,4 +1,5 @@
 using EasyContinuity_API.Data;
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Interfaces;
 using EasyContinuity_API.Models;
@@ -63,63 +64,38 @@ namespace EasyContinuity_API.Services
             return Response<Attachment>.Success(attachment);
         }
 
-        // public async Task<Response<Folder>> UpdateFolder(int id, Folder updatedFolder)
-        // {
-        //     var folder = await _ecDbContext.Folders.Where(f => f.Id == id).FirstOrDefaultAsync();
+        public async Task<Response<Attachment>> UpdateAttachment(int id, AttachmentUpdateDTO updatedAttachmentDTO)
+        {
+            var existingAttachment = await _ecDbContext.Attachments.AsNoTracking().FirstOrDefaultAsync(ea => ea.Id == id);
 
-        //     if (folder == null)
-        //     {
-        //         return Response<Folder>.Fail(404, "Folder Not Found");
-        //     }
+            if (existingAttachment == null)
+            {
+                return Response<Attachment>.Fail(404, "Attachment Not Found");
+            }
 
-        //     if (updatedFolder.SpaceId != 0 && updatedFolder.SpaceId != folder.SpaceId)
-        //     {
-        //         folder.SpaceId = updatedFolder.SpaceId;
-        //     }
+            var attachment = new Attachment
+            {
+                Id = id,
+                SpaceId = existingAttachment.SpaceId,
+                SnapshotId = updatedAttachmentDTO.SnapshotId ?? existingAttachment.SnapshotId,
+                FolderId = updatedAttachmentDTO.FolderId ?? existingAttachment.FolderId,
+                Name = updatedAttachmentDTO.Name ?? existingAttachment.Name,
+                Path = updatedAttachmentDTO.Path ?? existingAttachment.Path,
+                Size = updatedAttachmentDTO.Size ?? existingAttachment.Size,
+                MimeType = updatedAttachmentDTO.MimeType ?? existingAttachment.MimeType,
+                IsDeleted = updatedAttachmentDTO.IsDeleted ?? existingAttachment.IsDeleted,
+                AddedBy = existingAttachment.AddedBy,
+                AddedOn = existingAttachment.AddedOn, 
+                LastUpdatedBy = updatedAttachmentDTO.LastUpdatedBy ?? existingAttachment.LastUpdatedBy,
+                LastUpdatedOn = updatedAttachmentDTO.LastUpdatedOn ?? existingAttachment.LastUpdatedOn,
+                DeletedOn = updatedAttachmentDTO.DeletedOn ?? existingAttachment.DeletedOn,
+                DeletedBy = updatedAttachmentDTO.DeletedBy ?? existingAttachment.DeletedBy
+            };
 
-        //     if (updatedFolder.ParentId != null && updatedFolder.ParentId != folder.ParentId)
-        //     {
-        //         folder.ParentId = updatedFolder.ParentId;
-        //     }
+            _ecDbContext.Attachments.Update(attachment);
+            await _ecDbContext.SaveChangesAsync();
 
-        //     if (updatedFolder.Name != null && updatedFolder.Name != folder.Name)
-        //     {
-        //         folder.Name = updatedFolder.Name;
-        //     }
-
-        //     if (updatedFolder.Description != null && updatedFolder.Description != folder.Description)
-        //     {
-        //         folder.Description = updatedFolder.Description;
-        //     }
-
-        //     if (updatedFolder.IsDeleted != folder.IsDeleted)
-        //     {
-        //         folder.IsDeleted = updatedFolder.IsDeleted;
-        //     }
-
-        //     if (updatedFolder.LastUpdatedBy != null && updatedFolder.LastUpdatedBy != folder.LastUpdatedBy)
-        //     {
-        //         folder.LastUpdatedBy = updatedFolder.LastUpdatedBy;
-        //     }
-
-        //     if (updatedFolder.LastUpdatedOn != null && updatedFolder.LastUpdatedOn != folder.LastUpdatedOn)
-        //     {
-        //         folder.LastUpdatedOn = updatedFolder.LastUpdatedOn;
-        //     }
-
-        //     if (updatedFolder.DeletedOn != null && updatedFolder.DeletedOn != folder.DeletedOn)
-        //     {
-        //         folder.DeletedOn = updatedFolder.DeletedOn;
-        //     }
-
-        //     if (updatedFolder.DeletedBy != null && updatedFolder.DeletedBy != folder.DeletedBy)
-        //     {
-        //         folder.DeletedBy = updatedFolder.DeletedBy;
-        //     }
-
-        //     await _ecDbContext.SaveChangesAsync();
-
-        //     return Response<Folder>.Success(folder);
-        // }
+            return Response<Attachment>.Success(attachment);
+        }
     }
 }

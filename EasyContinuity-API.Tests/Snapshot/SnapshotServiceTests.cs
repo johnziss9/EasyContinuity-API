@@ -1,4 +1,5 @@
 using EasyContinuity_API.Data;
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -224,7 +225,7 @@ public class SnapshotServiceTests
         using (var context = CreateContext(dbName))
         {
             var service = new SnapshotService(context);
-            var updatedSnapshot = new Models.Snapshot
+            var updatedSnapshot = new SnapshotUpdateDTO
             {
                 Name = "Updated Name",
                 Character = 5,
@@ -262,7 +263,7 @@ public class SnapshotServiceTests
         // Arrange
         using var context = CreateContext("UpdateSnapshotInvalidTest");
         var service = new SnapshotService(context);
-        var updatedSnapshot = new Models.Snapshot 
+        var updatedSnapshot = new SnapshotUpdateDTO 
         { 
             Name = "Updated Name",
             Character = 4 
@@ -302,7 +303,7 @@ public class SnapshotServiceTests
         using (var context = CreateContext(dbName))
         {
             var service = new SnapshotService(context);
-            var updatedSnapshot = new Models.Snapshot
+            var updatedSnapshot = new SnapshotUpdateDTO
             {
                 Name = "Original Name",
                 Character = 4
