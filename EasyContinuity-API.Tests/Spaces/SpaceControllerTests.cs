@@ -104,7 +104,7 @@ public class SpaceControllerTests
         {
             var service = new SpaceService(context);
             var controller = new SpaceController(service);
-            var updatedSpace = new SpaceUpdateDto 
+            var updatedSpace = new SpaceUpdateDTO 
             { 
                 Name = "Updated Name",
                 Description = "Updated Description" 
@@ -132,7 +132,7 @@ public class SpaceControllerTests
         using var context = CreateContext("UpdateControllerInvalidTest");
         var service = new SpaceService(context);
         var controller = new SpaceController(service);
-        var space = new SpaceUpdateDto 
+        var space = new SpaceUpdateDTO 
         { 
             Name = "Test Space",
             Description = "Test Description" 

@@ -10,6 +10,6 @@ namespace EasyContinuity_API.Interfaces
 
         Task<Response<List<Space>>> GetAllSpaces();
 
-        Task<Response<Space>> UpdateSpace(int id, SpaceUpdateDto updatedSpaceDTO);
+        Task<Response<Space>> UpdateSpace(int id, SpaceUpdateDTO updatedSpaceDTO);
     }
 }

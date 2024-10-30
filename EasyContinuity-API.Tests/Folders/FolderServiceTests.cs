@@ -101,7 +101,7 @@ public class FolderServiceTests
         using (var context = CreateContext(dbName))
         {
             var service = new FolderService(context);
-            var updatedFolder = new FolderUpdateDto
+            var updatedFolder = new FolderUpdateDTO
             {
                 Name = "Updated Name",
                 Description = "Updated Description",
@@ -134,7 +134,7 @@ public class FolderServiceTests
         // Arrange
         using var context = CreateContext("UpdateFolderInvalidTest");
         var service = new FolderService(context);
-        var updatedFolder = new FolderUpdateDto 
+        var updatedFolder = new FolderUpdateDTO 
         { 
             Name = "Updated Name",
             Description = "Updated Description" 
@@ -174,7 +174,7 @@ public class FolderServiceTests
         using (var context = CreateContext(dbName))
         {
             var service = new FolderService(context);
-            var updatedFolder = new FolderUpdateDto
+            var updatedFolder = new FolderUpdateDTO
             {
                 Name = "Original Name",
                 Description = "Original Description"
