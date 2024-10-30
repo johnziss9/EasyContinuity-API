@@ -1,6 +1,6 @@
 namespace EasyContinuity_API.DTOs
 {
-    public class FolderUpdateDto
+    public class FolderUpdateDTO
     {
         public int? ParentId { get; set; }
         

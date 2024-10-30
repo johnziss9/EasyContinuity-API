@@ -1,3 +1,4 @@
+using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Helpers;
 using EasyContinuity_API.Interfaces;
 using EasyContinuity_API.Models;
@@ -28,10 +29,10 @@ namespace EasyContinuity_API.Controllers
             return ResponseHelper.HandleErrorAndReturn(await _characterService.GetAllCharactersBySpaceId(spaceId));
         }
 
-        // [HttpPut("{id}")]
-        // public async Task<ActionResult<Space>> Update(int id, SpaceUpdateDto updatedSpaceDTO)
-        // {
-        //     return ResponseHelper.HandleErrorAndReturn(await _spaceService.UpdateSpace(id, updatedSpaceDTO));
-        // }
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Character>> Update(int id, CharacterUpdateDTO updatedCharacterDTO)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _characterService.UpdateCharacter(id, updatedCharacterDTO));
+        }
     }
 }

@@ -108,7 +108,7 @@ public class FolderControllerTests
         {
             var service = new FolderService(context);
             var controller = new FolderController(service);
-            var updatedFolder = new FolderUpdateDto 
+            var updatedFolder = new FolderUpdateDTO 
             { 
                 Name = "Updated Name",
                 Description = "Updated Description" 
@@ -136,7 +136,7 @@ public class FolderControllerTests
         using var context = CreateContext("UpdateControllerInvalidTest");
         var service = new FolderService(context);
         var controller = new FolderController(service);
-        var folder = new FolderUpdateDto 
+        var folder = new FolderUpdateDTO 
         { 
             Name = "Test Folder",
             Description = "Test Description" 
