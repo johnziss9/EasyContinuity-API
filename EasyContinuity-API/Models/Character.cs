@@ -6,6 +6,8 @@ namespace EasyContinuity_API.Models
     {
         public int Id { get; set; }
 
+        public int SpaceId { get; set; }
+
         [Required(ErrorMessage = "Name is required.")]
         public string Name { get; set; } = "";
 
