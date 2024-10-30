@@ -22,11 +22,11 @@ namespace EasyContinuity_API.Controllers
             return ResponseHelper.HandleErrorAndReturn(await _characterService.CreateCharacter(character));
         }
 
-        // [HttpGet]
-        // public async Task<ActionResult<List<Space>>> GetAll()
-        // {
-        //     return ResponseHelper.HandleErrorAndReturn(await _spaceService.GetAllSpaces());
-        // }
+        [HttpGet("space/{spaceId}")]
+        public async Task<ActionResult<List<Character>>> GetAllBySpace(int spaceId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _characterService.GetAllCharactersBySpaceId(spaceId));
+        }
 
         // [HttpPut("{id}")]
         // public async Task<ActionResult<Space>> Update(int id, SpaceUpdateDto updatedSpaceDTO)

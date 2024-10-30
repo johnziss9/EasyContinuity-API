@@ -24,12 +24,12 @@ namespace EasyContinuity_API.Services
             return Response<Character>.Success(character);
         }
 
-        // public async Task<Response<List<Space>>> GetAllSpaces()
-        // {
-        //     var spaces = await _ecDbContext.Spaces.ToListAsync();
+        public async Task<Response<List<Character>>> GetAllCharactersBySpaceId(int spaceId)
+        {
+            var characters = await _ecDbContext.Characters.Where(c => c.SpaceId == spaceId).ToListAsync();
 
-        //     return Response<List<Space>>.Success(spaces);
-        // }
+            return Response<List<Character>>.Success(characters);
+        }
 
         // public async Task<Response<Space>> UpdateSpace(int id, SpaceUpdateDto updatedSpaceDTO)
         // {

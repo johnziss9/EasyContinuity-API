@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EasyContinuity_API.Migrations
 {
     [DbContext(typeof(ECDbContext))]
-    [Migration("20241029213413_InitialMigration")]
+    [Migration("20241030120410_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -117,6 +117,9 @@ namespace EasyContinuity_API.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("SpaceId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
