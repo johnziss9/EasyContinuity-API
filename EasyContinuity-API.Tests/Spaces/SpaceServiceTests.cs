@@ -97,7 +97,7 @@ public class SpaceServiceTests
         using (var context = CreateContext(dbName))
         {
             var service = new SpaceService(context);
-            var updatedSpace = new SpaceUpdateDto
+            var updatedSpace = new SpaceUpdateDTO
             {
                 Name = "Updated Name",
                 Description = "Updated Description",
@@ -130,7 +130,7 @@ public class SpaceServiceTests
         // Arrange
         using var context = CreateContext("UpdateSpaceInvalidTest");
         var service = new SpaceService(context);
-        var updatedSpace = new SpaceUpdateDto 
+        var updatedSpace = new SpaceUpdateDTO 
         { 
             Name = "Updated Name",
             Description = "Updated Description" 
@@ -170,7 +170,7 @@ public class SpaceServiceTests
         using (var context = CreateContext(dbName))
         {
             var service = new SpaceService(context);
-            var updatedSpace = new SpaceUpdateDto
+            var updatedSpace = new SpaceUpdateDTO
             {
                 Name = "Original Name",
                 Description = "Original Description"
