@@ -59,6 +59,5 @@ namespace EasyContinuity_API.Services
 
             return Response<Space>.Success(space);
         }
-
     }
 }
