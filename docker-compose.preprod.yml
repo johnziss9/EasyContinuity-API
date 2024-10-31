@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile.preprod
     ports:
-      - "5002:80"
+      - "5001:80"
     depends_on:
       - postgres-preprod
     environment:
