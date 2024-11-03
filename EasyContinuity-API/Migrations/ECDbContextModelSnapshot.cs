@@ -300,6 +300,10 @@ namespace EasyContinuity_API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.ToTable("Spaces");

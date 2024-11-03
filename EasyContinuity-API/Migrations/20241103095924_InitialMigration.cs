@@ -108,6 +108,7 @@ namespace EasyContinuity_API.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: true),
+                    Type = table.Column<string>(type: "text", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedBy = table.Column<int>(type: "integer", nullable: false),
                     LastUpdatedBy = table.Column<int>(type: "integer", nullable: true),
