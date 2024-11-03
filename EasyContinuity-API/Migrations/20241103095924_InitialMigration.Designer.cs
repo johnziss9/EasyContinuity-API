@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EasyContinuity_API.Migrations
 {
     [DbContext(typeof(ECDbContext))]
-    [Migration("20241030120410_InitialMigration")]
+    [Migration("20241103095924_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -300,6 +300,10 @@ namespace EasyContinuity_API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text");
 
