@@ -11,6 +11,9 @@ namespace EasyContinuity_API.Models
 
         public string? Description { get; set; }
 
+        [Required(ErrorMessage = "Type is required.")]
+        public string Type { get; set; } = "";
+
         public bool IsDeleted { get; set; }
 
         public int CreatedBy { get; set; }
