@@ -79,6 +79,40 @@ public class FolderServiceTests
     }
 
     [Fact]
+    public async Task GetAllFoldersByParentId_ShouldReturnAllFoldersForASpecificId()
+    {
+        // Arrange
+        var dbName = "GetAllFoldersTest";
+        var parentId = 1;
+
+        using (var context = CreateContext(dbName))
+        {
+            context.Folders.AddRange(
+                new Models.Folder { Name = "Folder 1", Description = "Description 1", ParentId = parentId },
+                new Models.Folder { Name = "Folder 2", Description = "Description 2", ParentId = parentId },
+                new Models.Folder { Name = "Folder 3", Description = "Description 3", ParentId = 3 }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new FolderService(context);
+
+            // Act
+            var result = await service.GetAllFoldersByParentId(parentId);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Data);
+            Assert.Equal(2, result.Data.Count);
+            Assert.Contains(result.Data, s => s.Name == "Folder 1");
+            Assert.Contains(result.Data, s => s.Name == "Folder 2");
+            Assert.DoesNotContain(result.Data, s => s.Name == "Folder 3");
+        }
+    }
+
+    [Fact]
     public async Task UpdateFolder_WithValidId_ShouldUpdateAndReturnFolder()
     {
         // Arrange
