@@ -86,6 +86,41 @@ public class FolderControllerTests
     }
 
     [Fact]
+    public async Task GetAll_ShouldReturnAllFoldersByParentId()
+    {
+        // Arrange
+        var dbName = "GetAllControllerTest";
+        var parentId = 1;
+
+        using (var context = CreateContext(dbName))
+        {
+            context.Folders.AddRange(
+                new Models.Folder { Name = "Folder 1", Description = "Description 1", ParentId = parentId },
+                new Models.Folder { Name = "Folder 2", Description = "Description 2", ParentId = parentId },
+                new Models.Folder { Name = "Folder 3", Description = "Description 3", ParentId = 5 }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new FolderService(context);
+            var controller = new FolderController(service);
+
+            // Act
+            var result = await controller.GetAllByParent(parentId);
+
+            // Assert
+            var actionResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<List<Models.Folder>>(actionResult.Value);
+            Assert.Equal(2, returnValue.Count);
+            Assert.Contains(returnValue, s => s.Name == "Folder 1");
+            Assert.Contains(returnValue, s => s.Name == "Folder 2");
+            Assert.DoesNotContain(returnValue, s => s.Name == "Folder 3");
+        }
+    }
+
+    [Fact]
     public async Task Update_WithValidId_ShouldReturnUpdatedFolder()
     {
         // Arrange
