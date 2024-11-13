@@ -121,6 +121,54 @@ public class FolderControllerTests
     }
 
     [Fact]
+    public async Task GetSingle_WithValidId_ShouldReturnFolder()
+    {
+        // Arrange
+        var dbName = "GetSingleControllerTest";
+        int folderId;
+
+        using (var context = CreateContext(dbName))
+        {
+            var folder = new Models.Folder 
+            { 
+                Name = "Test Folder"
+            };
+            context.Folders.Add(folder);
+            await context.SaveChangesAsync();
+            folderId = folder.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new FolderService(context);
+            var controller = new FolderController(service);
+
+            // Act
+            var result = await controller.GetSingle(folderId);
+
+            // Assert
+            var actionResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<Models.Folder>(actionResult.Value);
+            Assert.Equal("Test Folder", returnValue.Name);
+        }
+    }
+
+    [Fact]
+    public async Task GetSingle_WithInvalidId_ShouldReturnNotFound()
+    {
+        // Arrange
+        using var context = CreateContext("GetSingleInvalidControllerTest");
+        var service = new FolderService(context);
+        var controller = new FolderController(service);
+
+        // Act
+        var result = await controller.GetSingle(999);
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result.Result);
+    }
+
+    [Fact]
     public async Task Update_WithValidId_ShouldReturnUpdatedFolder()
     {
         // Arrange

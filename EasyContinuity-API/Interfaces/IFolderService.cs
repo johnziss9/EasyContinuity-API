@@ -12,6 +12,8 @@ namespace EasyContinuity_API.Interfaces
 
         Task<Response<List<Folder>>> GetAllFoldersByParentId(int parentId);
 
+        Task<Response<Folder>> GetSingleFolderById(int folderId);
+
         Task<Response<Folder>> UpdateFolder(int id, FolderUpdateDTO updatedFolderDTO);
     }
 }
