@@ -31,6 +31,13 @@ namespace EasyContinuity_API.Services
             return Response<List<Folder>>.Success(folders);
         }
 
+        public async Task<Response<List<Folder>>> GetAllFoldersByParentId(int parentId)
+        {
+            var folders = await _ecDbContext.Folders.Where(f => f.ParentId == parentId).ToListAsync();
+
+            return Response<List<Folder>>.Success(folders);
+        }
+
         public async Task<Response<Folder>> UpdateFolder(int id, FolderUpdateDTO updatedFolderDTO)
         {
             var existingFolder = await _ecDbContext.Folders.AsNoTracking().FirstOrDefaultAsync(f => f.Id == id);
