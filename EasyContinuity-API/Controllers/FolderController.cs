@@ -35,6 +35,12 @@ namespace EasyContinuity_API.Controllers
             return ResponseHelper.HandleErrorAndReturn(await _folderService.GetAllFoldersByParentId(parentId));
         }
 
+        [HttpGet("{folderId}")]
+        public async Task<ActionResult<Folder>> GetSingle(int folderId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _folderService.GetSingleFolderById(folderId));
+        }
+
         [HttpPut("{id}")]
         public async Task<ActionResult<Folder>> Update(int id, FolderUpdateDTO updatedFolderDTO)
         {

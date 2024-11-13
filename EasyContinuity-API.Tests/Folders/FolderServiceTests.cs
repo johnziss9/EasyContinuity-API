@@ -113,6 +113,59 @@ public class FolderServiceTests
     }
 
     [Fact]
+    public async Task GetSingleFolderById_WithValidId_ShouldReturnFolder()
+    {
+        // Arrange
+        var dbName = "GetSingleFolderValidTest";
+        int folderId;
+        var dateAdded = DateTime.UtcNow;
+
+        using (var context = CreateContext(dbName))
+        {
+            var folder = new Models.Folder 
+            { 
+                Name = "Test Folder",
+                CreatedOn = dateAdded,
+                CreatedBy = 2
+            };
+            context.Folders.Add(folder);
+            await context.SaveChangesAsync();
+            folderId = folder.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new FolderService(context);
+
+            // Act
+            var result = await service.GetSingleFolderById(folderId);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Data);
+            Assert.Equal("Test Folder", result.Data.Name);
+            Assert.Equal(dateAdded, result.Data.CreatedOn);
+            Assert.Equal(2, result.Data.CreatedBy);
+        }
+    }
+
+    [Fact]
+    public async Task GetSingleFolderById_WithInvalidId_ShouldReturnFailResponse()
+    {
+        // Arrange
+        using var context = CreateContext("GetSingleFolderInvalidTest");
+        var service = new FolderService(context);
+
+        // Act
+        var result = await service.GetSingleFolderById(999);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(404, result.StatusCode);
+        Assert.Equal("Folder Not Found", result.Message);
+    }
+
+    [Fact]
     public async Task UpdateFolder_WithValidId_ShouldUpdateAndReturnFolder()
     {
         // Arrange
