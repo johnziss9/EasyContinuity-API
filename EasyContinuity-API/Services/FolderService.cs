@@ -38,6 +38,18 @@ namespace EasyContinuity_API.Services
             return Response<List<Folder>>.Success(folders);
         }
 
+        public async Task<Response<Folder>> GetSingleFolderById(int folderId)
+        {
+            var folder = await _ecDbContext.Folders.Where(f => f.Id == folderId).FirstOrDefaultAsync();
+
+            if (folder == null)
+            {
+                return Response<Folder>.Fail(404, "Folder Not Found");
+            }
+
+            return Response<Folder>.Success(folder);
+        }
+
         public async Task<Response<Folder>> UpdateFolder(int id, FolderUpdateDTO updatedFolderDTO)
         {
             var existingFolder = await _ecDbContext.Folders.AsNoTracking().FirstOrDefaultAsync(f => f.Id == id);
