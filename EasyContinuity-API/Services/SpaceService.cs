@@ -31,6 +31,18 @@ namespace EasyContinuity_API.Services
             return Response<List<Space>>.Success(spaces);
         }
 
+        public async Task<Response<Space>> GetSingleSpaceById(int spaceId)
+        {
+            var space = await _ecDbContext.Spaces.Where(s => s.Id == spaceId).FirstOrDefaultAsync();
+
+            if (space == null)
+            {
+                return Response<Space>.Fail(404, "Space Not Found");
+            }
+
+            return Response<Space>.Success(space);
+        }
+
         public async Task<Response<Space>> UpdateSpace(int id, SpaceUpdateDTO updatedSpaceDTO)
         {
             var existingSpace = await _ecDbContext.Spaces.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);

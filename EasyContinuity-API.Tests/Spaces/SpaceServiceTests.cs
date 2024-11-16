@@ -75,6 +75,59 @@ public class SpaceServiceTests
     }
 
     [Fact]
+    public async Task GetSingleSpaceById_WithValidId_ShouldReturnSpace()
+    {
+        // Arrange
+        var dbName = "GetSingleSpaceValidTest";
+        int spaceId;
+        var dateAdded = DateTime.UtcNow;
+
+        using (var context = CreateContext(dbName))
+        {
+            var space = new Models.Space 
+            { 
+                Name = "Test Space",
+                CreatedOn = dateAdded,
+                CreatedBy = 2
+            };
+            context.Spaces.Add(space);
+            await context.SaveChangesAsync();
+            spaceId = space.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+
+            // Act
+            var result = await service.GetSingleSpaceById(spaceId);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Data);
+            Assert.Equal("Test Space", result.Data.Name);
+            Assert.Equal(dateAdded, result.Data.CreatedOn);
+            Assert.Equal(2, result.Data.CreatedBy);
+        }
+    }
+
+    [Fact]
+    public async Task GetSingleSpaceById_WithInvalidId_ShouldReturnFailResponse()
+    {
+        // Arrange
+        using var context = CreateContext("GetSingleSpaceInvalidTest");
+        var service = new SpaceService(context);
+
+        // Act
+        var result = await service.GetSingleSpaceById(999);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(404, result.StatusCode);
+        Assert.Equal("Space Not Found", result.Message);
+    }
+
+    [Fact]
     public async Task UpdateSpace_WithValidId_ShouldUpdateAndReturnSpace()
     {
         // Arrange
