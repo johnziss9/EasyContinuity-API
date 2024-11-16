@@ -29,6 +29,12 @@ namespace EasyContinuity_API.Controllers
             return ResponseHelper.HandleErrorAndReturn(await _spaceService.GetAllSpaces());
         }
 
+        [HttpGet("{spaceId}")]
+        public async Task<ActionResult<Space>> GetSingle(int spaceId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _spaceService.GetSingleSpaceById(spaceId));
+        }
+
         [HttpPut("{id}")]
         public async Task<ActionResult<Space>> Update(int id, SpaceUpdateDTO updatedSpaceDTO)
         {

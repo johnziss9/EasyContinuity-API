@@ -1,6 +1,7 @@
 using EasyContinuity_API.Controllers;
 using EasyContinuity_API.Data;
 using EasyContinuity_API.DTOs;
+using EasyContinuity_API.Models;
 using EasyContinuity_API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -79,6 +80,54 @@ public class SpaceControllerTests
             Assert.Contains(returnValue, s => s.Name == "Space 1");
             Assert.Contains(returnValue, s => s.Name == "Space 2");
         }
+    }
+
+    [Fact]
+    public async Task GetSingle_WithValidId_ShouldReturnSpace()
+    {
+        // Arrange
+        var dbName = "GetSingleControllerTest";
+        int spaceId;
+
+        using (var context = CreateContext(dbName))
+        {
+            var space = new Models.Space 
+            { 
+                Name = "Test Space"
+            };
+            context.Spaces.Add(space);
+            await context.SaveChangesAsync();
+            spaceId = space.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+            var controller = new SpaceController(service);
+
+            // Act
+            var result = await controller.GetSingle(spaceId);
+
+            // Assert
+            var actionResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<Space>(actionResult.Value);
+            Assert.Equal("Test Space", returnValue.Name);
+        }
+    }
+
+    [Fact]
+    public async Task GetSingle_WithInvalidId_ShouldReturnNotFound()
+    {
+        // Arrange
+        using var context = CreateContext("GetSingleInvalidControllerTest");
+        var service = new SpaceService(context);
+        var controller = new SpaceController(service);
+
+        // Act
+        var result = await controller.GetSingle(999);
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result.Result);
     }
 
     [Fact]
