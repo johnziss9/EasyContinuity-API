@@ -59,8 +59,9 @@ public class SpaceControllerTests
         using (var context = CreateContext(dbName))
         {
             context.Spaces.AddRange(
-                new Models.Space { Name = "Space 1", Description = "Description 1" },
-                new Models.Space { Name = "Space 2", Description = "Description 2" }
+                new Space { Name = "Space 1", Description = "Description 1", IsDeleted = false },
+                new Space { Name = "Space 2", Description = "Description 2", IsDeleted = false },
+                new Space { Name = "Space 3", Description = "Description 3", IsDeleted = true }
             );
             await context.SaveChangesAsync();
         }
@@ -91,7 +92,7 @@ public class SpaceControllerTests
 
         using (var context = CreateContext(dbName))
         {
-            var space = new Models.Space 
+            var space = new Space 
             { 
                 Name = "Test Space"
             };
@@ -128,6 +129,38 @@ public class SpaceControllerTests
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetSingle_WithDeletedTrue_ShouldReturnNotFound()
+    {
+        // Arrange
+        var dbName = "GetSingleDeletedTrueControllerTest";
+        int spaceId;
+
+        using (var context = CreateContext(dbName))
+        {
+            var space = new Space 
+            { 
+                Name = "Test Space",
+                IsDeleted = true
+            };
+            context.Spaces.Add(space);
+            await context.SaveChangesAsync();
+            spaceId = space.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+            var controller = new SpaceController(service);
+
+            // Act
+            var result = await controller.GetSingle(spaceId);
+
+            // Assert
+            Assert.IsType<NotFoundObjectResult>(result.Result);
+        }
     }
 
     [Fact]

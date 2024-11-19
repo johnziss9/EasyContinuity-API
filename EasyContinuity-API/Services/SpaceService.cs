@@ -26,14 +26,14 @@ namespace EasyContinuity_API.Services
 
         public async Task<Response<List<Space>>> GetAllSpaces()
         {
-            var spaces = await _ecDbContext.Spaces.ToListAsync();
+            var spaces = await _ecDbContext.Spaces.Where(s => s.IsDeleted == false).ToListAsync();
 
             return Response<List<Space>>.Success(spaces);
         }
 
         public async Task<Response<Space>> GetSingleSpaceById(int spaceId)
         {
-            var space = await _ecDbContext.Spaces.Where(s => s.Id == spaceId).FirstOrDefaultAsync();
+            var space = await _ecDbContext.Spaces.Where(s => s.Id == spaceId && s.IsDeleted == false).FirstOrDefaultAsync();
 
             if (space == null)
             {
