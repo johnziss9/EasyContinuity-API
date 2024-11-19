@@ -19,7 +19,7 @@ namespace EasyContinuity_API.Models
 
         public int? LastUpdatedBy { get; set; }
 
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedOn { get; set; }
 
         public DateTime? LastUpdatedOn { get; set; }
 
