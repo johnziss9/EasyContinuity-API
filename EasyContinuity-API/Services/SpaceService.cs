@@ -56,6 +56,7 @@ namespace EasyContinuity_API.Services
             {
                 Id = id,
                 Name = updatedSpaceDTO.Name ?? existingSpace.Name,
+                Type = updatedSpaceDTO.Type ?? existingSpace.Type,
                 Description = updatedSpaceDTO.Description ?? existingSpace.Description,
                 IsDeleted = updatedSpaceDTO.IsDeleted ?? existingSpace.IsDeleted,
                 CreatedBy = existingSpace.CreatedBy,
