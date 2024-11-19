@@ -52,8 +52,9 @@ public class SpaceServiceTests
         using (var context = CreateContext(dbName))
         {
             context.Spaces.AddRange(
-                new Models.Space { Name = "Space 1", Description = "Description 1" },
-                new Models.Space { Name = "Space 2", Description = "Description 2" }
+                new Models.Space { Name = "Space 1", Description = "Description 1", IsDeleted = false },
+                new Models.Space { Name = "Space 2", Description = "Description 2", IsDeleted = false },
+                new Models.Space { Name = "Space 3", Description = "Description 3", IsDeleted = true }
             );
             await context.SaveChangesAsync();
         }
@@ -125,6 +126,42 @@ public class SpaceServiceTests
         Assert.False(result.IsSuccess);
         Assert.Equal(404, result.StatusCode);
         Assert.Equal("Space Not Found", result.Message);
+    }
+
+    [Fact]
+    public async Task GetSingleSpaceById_WithDeletedTrue_ShouldReturnNotFound()
+    {
+        // Arrange
+        var dbName = "GetSingleSpaceDeletedTrueTest";
+        int spaceId;
+        var dateAdded = DateTime.UtcNow;
+
+        using (var context = CreateContext(dbName))
+        {
+            var space = new Models.Space 
+            { 
+                Name = "Test Space",
+                CreatedOn = dateAdded,
+                IsDeleted = true,
+                CreatedBy = 2
+            };
+            context.Spaces.Add(space);
+            await context.SaveChangesAsync();
+            spaceId = space.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+
+            // Act
+            var result = await service.GetSingleSpaceById(spaceId);
+
+            // Assert
+            Assert.False(result.IsSuccess);
+            Assert.Equal(404, result.StatusCode);
+            Assert.Equal("Space Not Found", result.Message);
+        }
     }
 
     [Fact]
