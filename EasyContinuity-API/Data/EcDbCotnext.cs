@@ -47,6 +47,7 @@ namespace EasyContinuity_API.Data
             modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
             modelBuilder.Entity<Space>().HasQueryFilter(s => !s.IsDeleted);
             modelBuilder.Entity<Folder>().HasQueryFilter(f => !f.IsDeleted);
+            modelBuilder.Entity<Snapshot>().HasQueryFilter(s => !s.IsDeleted);
             modelBuilder.Entity<Attachment>().HasQueryFilter(a => !a.IsDeleted);
         }
     }
