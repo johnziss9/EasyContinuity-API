@@ -82,6 +82,95 @@ public class CharacterServiceTests
     }
 
     [Fact]
+    public async Task GetSingleCharacterById_WithValidId_ShouldReturnCharacter()
+    {
+        // Arrange
+        var dbName = "GetSingleCharacterValidTest";
+        int characterId;
+        var dateAdded = DateTime.UtcNow;
+
+        using (var context = CreateContext(dbName))
+        {
+            var character = new Models.Character 
+            { 
+                Name = "Test Character",
+                CreatedOn = dateAdded,
+                CreatedBy = 2
+            };
+            context.Characters.Add(character);
+            await context.SaveChangesAsync();
+            characterId = character.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new CharacterService(context);
+
+            // Act
+            var result = await service.GetSingleCharacterById(characterId);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Data);
+            Assert.Equal("Test Character", result.Data.Name);
+            Assert.Equal(dateAdded, result.Data.CreatedOn);
+            Assert.Equal(2, result.Data.CreatedBy);
+        }
+    }
+
+    [Fact]
+    public async Task GetSingleCharacterById_WithInvalidId_ShouldReturnFailResponse()
+    {
+        // Arrange
+        using var context = CreateContext("GetSingleCharacterInvalidTest");
+        var service = new CharacterService(context);
+
+        // Act
+        var result = await service.GetSingleCharacterById(999);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(404, result.StatusCode);
+        Assert.Equal("Character Not Found", result.Message);
+    }
+
+    [Fact]
+    public async Task GetSingleCharacterById_WithDeletedTrue_ShouldReturnNotFound()
+    {
+        // Arrange
+        var dbName = "GetSingleCharacterDeletedTrueTest";
+        int characterId;
+        var dateAdded = DateTime.UtcNow;
+
+        using (var context = CreateContext(dbName))
+        {
+            var character = new Models.Character 
+            { 
+                Name = "Test Character",
+                CreatedOn = dateAdded,
+                IsDeleted = true,
+                CreatedBy = 2
+            };
+            context.Characters.Add(character);
+            await context.SaveChangesAsync();
+            characterId = character.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new CharacterService(context);
+
+            // Act
+            var result = await service.GetSingleCharacterById(characterId);
+
+            // Assert
+            Assert.False(result.IsSuccess);
+            Assert.Equal(404, result.StatusCode);
+            Assert.Equal("Character Not Found", result.Message);
+        }
+    }
+
+    [Fact]
     public async Task UpdateCharacter_WithValidId_ShouldUpdateAndReturnCharacter()
     {
         // Arrange

@@ -31,6 +31,18 @@ namespace EasyContinuity_API.Services
             return Response<List<Character>>.Success(characters);
         }
 
+        public async Task<Response<Character>> GetSingleCharacterById(int characterId)
+        {
+            var character = await _ecDbContext.Characters.Where(c => c.Id == characterId).FirstOrDefaultAsync();
+
+            if (character == null)
+            {
+                return Response<Character>.Fail(404, "Character Not Found");
+            }
+
+            return Response<Character>.Success(character);
+        }
+
         public async Task<Response<Character>> UpdateCharacter(int id, CharacterUpdateDTO updatedCharacterDTO)
         {
             var existingCharacter = await _ecDbContext.Characters.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);

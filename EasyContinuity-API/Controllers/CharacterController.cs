@@ -29,6 +29,12 @@ namespace EasyContinuity_API.Controllers
             return ResponseHelper.HandleErrorAndReturn(await _characterService.GetAllCharactersBySpaceId(spaceId));
         }
 
+        [HttpGet("{characterId}")]
+        public async Task<ActionResult<Character>> GetSingle(int characterId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _characterService.GetSingleCharacterById(characterId));
+        }
+
         [HttpPut("{id}")]
         public async Task<ActionResult<Character>> Update(int id, CharacterUpdateDTO updatedCharacterDTO)
         {
