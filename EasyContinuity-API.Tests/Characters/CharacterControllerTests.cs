@@ -1,6 +1,7 @@
 using EasyContinuity_API.Controllers;
 using EasyContinuity_API.Data;
 using EasyContinuity_API.DTOs;
+using EasyContinuity_API.Models;
 using EasyContinuity_API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -81,6 +82,86 @@ public class CharacterControllerTests
             Assert.Contains(returnValue, c => c.Name == "Character 1");
             Assert.Contains(returnValue, c => c.Name == "Character 2");
             Assert.DoesNotContain(returnValue, c => c.Name == "Other Space");
+        }
+    }
+
+    [Fact]
+    public async Task GetSingle_WithValidId_ShouldReturnCharacter()
+    {
+        // Arrange
+        var dbName = "GetSingleControllerTest";
+        int characterId;
+
+        using (var context = CreateContext(dbName))
+        {
+            var character = new Character 
+            { 
+                Name = "Test Character"
+            };
+            context.Characters.Add(character);
+            await context.SaveChangesAsync();
+            characterId = character.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new CharacterService(context);
+            var controller = new CharacterController(service);
+
+            // Act
+            var result = await controller.GetSingle(characterId);
+
+            // Assert
+            var actionResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<Character>(actionResult.Value);
+            Assert.Equal("Test Character", returnValue.Name);
+        }
+    }
+
+    [Fact]
+    public async Task GetSingle_WithInvalidId_ShouldReturnNotFound()
+    {
+        // Arrange
+        using var context = CreateContext("GetSingleInvalidControllerTest");
+        var service = new CharacterService(context);
+        var controller = new CharacterController(service);
+
+        // Act
+        var result = await controller.GetSingle(999);
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetSingle_WithDeletedTrue_ShouldReturnNotFound()
+    {
+        // Arrange
+        var dbName = "GetSingleDeletedTrueControllerTest";
+        int characterId;
+
+        using (var context = CreateContext(dbName))
+        {
+            var character = new Character 
+            { 
+                Name = "Test Character",
+                IsDeleted = true
+            };
+            context.Characters.Add(character);
+            await context.SaveChangesAsync();
+            characterId = character.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new CharacterService(context);
+            var controller = new CharacterController(service);
+
+            // Act
+            var result = await controller.GetSingle(characterId);
+
+            // Assert
+            Assert.IsType<NotFoundObjectResult>(result.Result);
         }
     }
 
