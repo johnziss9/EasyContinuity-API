@@ -164,6 +164,227 @@ public class SpaceControllerTests
     }
 
     [Fact]
+    public async Task SearchContents_WithValidQuery_ShouldReturnResults()
+    {
+        // Arrange
+        var dbName = "SearchContentsControllerTest";
+        int spaceId;
+
+        using (var context = CreateContext(dbName))
+        {
+            var space = new Space { Id = 1, Name = "Test Space" };
+            var folder = new Folder 
+            { 
+                Name = "Test Folder",
+                SpaceId = 1,
+                IsDeleted = false
+            };
+            var snapshot = new Snapshot 
+            { 
+                Name = "Test Snapshot",
+                SpaceId = 1,
+                IsDeleted = false
+            };
+            
+            context.Spaces.Add(space);
+            context.Folders.Add(folder);
+            context.Snapshots.Add(snapshot);
+            await context.SaveChangesAsync();
+            spaceId = space.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+            var controller = new SpaceController(service);
+
+            // Act
+            var result = await controller.SearchContents(spaceId, "Test");
+
+            // Assert
+            var actionResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<List<object>>(actionResult.Value);
+            Assert.Equal(2, returnValue.Count);
+        }
+    }
+
+    [Fact]
+    public async Task SearchContents_WithNoMatches_ShouldReturnEmptyList()
+    {
+        // Arrange
+        var dbName = "SearchContentsNoMatchesTest";
+        int spaceId;
+
+        using (var context = CreateContext(dbName))
+        {
+            var space = new Space { Id = 1, Name = "Test Space" };
+            context.Spaces.Add(space);
+            await context.SaveChangesAsync();
+            spaceId = space.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+            var controller = new SpaceController(service);
+
+            // Act
+            var result = await controller.SearchContents(spaceId, "NonExistent");
+
+            // Assert
+            var actionResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<List<object>>(actionResult.Value);
+            Assert.Empty(returnValue);
+        }
+    }
+
+    [Fact]
+    public async Task SearchContents_ShouldNotReturnDeletedItems()
+    {
+        // Arrange
+        var dbName = "SearchContentsDeletedItemsTest";
+        int spaceId;
+
+        using (var context = CreateContext(dbName))
+        {
+            var space = new Space { Id = 1, Name = "Test Space" };
+            var folder = new Folder 
+            { 
+                Name = "Test Folder",
+                SpaceId = 1,
+                IsDeleted = true
+            };
+            var snapshot = new Snapshot 
+            { 
+                Name = "Test Snapshot",
+                SpaceId = 1,
+                IsDeleted = true
+            };
+            
+            context.Spaces.Add(space);
+            context.Folders.Add(folder);
+            context.Snapshots.Add(snapshot);
+            await context.SaveChangesAsync();
+            spaceId = space.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+            var controller = new SpaceController(service);
+
+            // Act
+            var result = await controller.SearchContents(spaceId, "Test");
+
+            // Assert
+            var actionResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<List<object>>(actionResult.Value);
+            Assert.Empty(returnValue);
+        }
+    }
+
+    [Fact]
+    public async Task SearchContents_ShouldBeCaseInsensitive()
+    {
+        // Arrange
+        var dbName = "SearchContentsCaseControllerTest";
+        int spaceId;
+
+        using (var context = CreateContext(dbName))
+        {
+            var space = new Space { Id = 1, Name = "Test Space" };
+            var folder = new Folder 
+            { 
+                Name = "TEST FOLDER",
+                SpaceId = 1,
+                IsDeleted = false
+            };
+            var snapshot = new Snapshot 
+            { 
+                Name = "test snapshot",
+                SpaceId = 1,
+                IsDeleted = false
+            };
+            
+            context.Spaces.Add(space);
+            context.Folders.Add(folder);
+            context.Snapshots.Add(snapshot);
+            await context.SaveChangesAsync();
+            spaceId = space.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+            var controller = new SpaceController(service);
+
+            // Act
+            var result = await controller.SearchContents(spaceId, "test");
+
+            // Assert
+            var actionResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<List<object>>(actionResult.Value);
+            Assert.Equal(2, returnValue.Count);
+        }
+    }
+
+    [Fact]
+    public async Task SearchContents_WithNonExistentSpace_ShouldReturnEmptyList()
+    {
+        // Arrange
+        using var context = CreateContext("SearchContentsNonExistentSpaceControllerTest");
+        var service = new SpaceService(context);
+        var controller = new SpaceController(service);
+
+        // Act
+        var result = await controller.SearchContents(999, "test");
+
+        // Assert
+        var actionResult = Assert.IsType<OkObjectResult>(result.Result);
+        var returnValue = Assert.IsType<List<object>>(actionResult.Value);
+        Assert.Empty(returnValue);
+    }
+
+    [Fact]
+    public async Task SearchContents_WithDifferentSpace_ShouldNotReturnItems()
+    {
+        // Arrange
+        var dbName = "SearchContentsDifferentSpaceControllerTest";
+        int searchSpaceId;
+
+        using (var context = CreateContext(dbName))
+        {
+            var space1 = new Space { Id = 1, Name = "Space 1" };
+            var space2 = new Space { Id = 2, Name = "Space 2" };
+            var folder = new Folder 
+            { 
+                Name = "Test Folder",
+                SpaceId = 2,
+                IsDeleted = false
+            };
+            
+            context.Spaces.AddRange(space1, space2);
+            context.Folders.Add(folder);
+            await context.SaveChangesAsync();
+            searchSpaceId = space1.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+            var controller = new SpaceController(service);
+
+            // Act
+            var result = await controller.SearchContents(searchSpaceId, "Test");
+
+            // Assert
+            var actionResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<List<object>>(actionResult.Value);
+            Assert.Empty(returnValue);
+        }
+    }
+
+    [Fact]
     public async Task Update_WithValidId_ShouldReturnUpdatedSpace()
     {
         // Arrange

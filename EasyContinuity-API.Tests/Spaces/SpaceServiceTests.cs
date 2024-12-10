@@ -165,6 +165,202 @@ public class SpaceServiceTests
     }
 
     [Fact]
+    public async Task SearchContentsBySpace_WithValidQuery_ShouldReturnResults()
+    {
+        // Arrange
+        var dbName = "SearchContentsServiceTest";
+        using var context = CreateContext(dbName);
+        var service = new SpaceService(context);
+
+        var space = new Models.Space { Id = 1, Name = "Test Space" };
+        var folder = new Models.Folder 
+        { 
+            Name = "Test Folder",
+            SpaceId = 1,
+            IsDeleted = false
+        };
+        var snapshot = new Models.Snapshot 
+        { 
+            Name = "Test Snapshot",
+            SpaceId = 1,
+            IsDeleted = false
+        };
+        
+        context.Spaces.Add(space);
+        context.Folders.Add(folder);
+        context.Snapshots.Add(snapshot);
+        await context.SaveChangesAsync();
+
+        // Act
+        var result = await service.SearchContentsBySpace(1, "Test");
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
+        Assert.Equal(2, result.Data.Count);
+    }
+
+    [Fact]
+    public async Task SearchContentsBySpace_ShouldBeCaseInsensitive()
+    {
+        // Arrange
+        var dbName = "SearchContentsCaseTest";
+        using var context = CreateContext(dbName);
+        var service = new SpaceService(context);
+
+        var space = new Models.Space { Id = 1, Name = "Test Space" };
+        var folder = new Models.Folder 
+        { 
+            Name = "TEST FOLDER",
+            SpaceId = 1,
+            IsDeleted = false
+        };
+        var snapshot = new Models.Snapshot 
+        { 
+            Name = "test snapshot",
+            SpaceId = 1,
+            IsDeleted = false
+        };
+        
+        context.Spaces.Add(space);
+        context.Folders.Add(folder);
+        context.Snapshots.Add(snapshot);
+        await context.SaveChangesAsync();
+
+        // Act
+        var result = await service.SearchContentsBySpace(1, "test");
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
+        Assert.Equal(2, result.Data.Count);
+    }
+
+    [Fact]
+    public async Task SearchContentsBySpace_WithNonExistentSpace_ShouldReturnEmptyList()
+    {
+        // Arrange
+        using var context = CreateContext("SearchContentsNonExistentSpaceTest");
+        var service = new SpaceService(context);
+
+        // Act
+        var result = await service.SearchContentsBySpace(999, "test");
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
+        Assert.Empty(result.Data);
+    }
+
+    [Fact]
+    public async Task SearchContentsBySpace_WithDifferentSpace_ShouldNotReturnItems()
+    {
+        // Arrange
+        var dbName = "SearchContentsDifferentSpaceTest";
+        using var context = CreateContext(dbName);
+        var service = new SpaceService(context);
+
+        var space1 = new Models.Space { Id = 1, Name = "Space 1" };
+        var space2 = new Models.Space { Id = 2, Name = "Space 2" };
+        var folder = new Models.Folder 
+        { 
+            Name = "Test Folder",
+            SpaceId = 2,
+            IsDeleted = false
+        };
+        
+        context.Spaces.AddRange(space1, space2);
+        context.Folders.Add(folder);
+        await context.SaveChangesAsync();
+
+        // Act
+        var result = await service.SearchContentsBySpace(1, "Test");
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
+        Assert.Empty(result.Data);
+    }
+
+    [Fact]
+    public async Task SearchContentsBySpace_WithNoMatches_ShouldReturnEmptyList()
+    {
+        // Arrange
+        var dbName = "SearchContentsNoMatchesServiceTest";
+        using var context = CreateContext(dbName);
+        var service = new SpaceService(context);
+
+        var space = new Models.Space { Id = 1, Name = "Test Space" };
+        var folder = new Models.Folder 
+        { 
+            Name = "Sample Folder",
+            SpaceId = 1,
+            IsDeleted = false
+        };
+        var snapshot = new Models.Snapshot 
+        { 
+            Name = "Example Snapshot",
+            SpaceId = 1,
+            IsDeleted = false
+        };
+        
+        context.Spaces.Add(space);
+        context.Folders.Add(folder);
+        context.Snapshots.Add(snapshot);
+        await context.SaveChangesAsync();
+
+        // Act
+        var result = await service.SearchContentsBySpace(1, "NonExistent");
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
+        Assert.Empty(result.Data);
+    }
+
+    [Fact]
+    public async Task SearchContentsBySpace_ShouldNotReturnDeletedItems()
+    {
+        // Arrange
+        var dbName = "SearchContentsDeletedItemsServiceTest";
+        using var context = CreateContext(dbName);
+        var service = new SpaceService(context);
+
+        var space = new Models.Space { Id = 1, Name = "Test Space" };
+        var folder = new Models.Folder 
+        { 
+            Name = "Test Folder",
+            SpaceId = 1,
+            IsDeleted = true  // Deleted folder
+        };
+        var snapshot = new Models.Snapshot 
+        { 
+            Name = "Test Snapshot",
+            SpaceId = 1,
+            IsDeleted = true  // Deleted snapshot
+        };
+        var activeFolder = new Models.Folder 
+        { 
+            Name = "Different Name",
+            SpaceId = 1,
+            IsDeleted = false
+        };
+        
+        context.Spaces.Add(space);
+        context.Folders.AddRange(folder, activeFolder);
+        context.Snapshots.Add(snapshot);
+        await context.SaveChangesAsync();
+
+        // Act
+        var result = await service.SearchContentsBySpace(1, "Test");
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
+        Assert.Empty(result.Data);
+    }
+
+    [Fact]
     public async Task UpdateSpace_WithValidId_ShouldUpdateAndReturnSpace()
     {
         // Arrange
