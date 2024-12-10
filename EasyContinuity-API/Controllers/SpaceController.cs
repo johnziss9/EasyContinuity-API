@@ -35,6 +35,12 @@ namespace EasyContinuity_API.Controllers
             return ResponseHelper.HandleErrorAndReturn(await _spaceService.GetSingleSpaceById(spaceId));
         }
 
+        [HttpGet("{spaceId}/search")]
+        public async Task<ActionResult<List<object>>> SearchContents(int spaceId, [FromQuery] string query)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _spaceService.SearchContentsBySpace(spaceId, query));
+        }
+
         [HttpPut("{id}")]
         public async Task<ActionResult<Space>> Update(int id, SpaceUpdateDTO updatedSpaceDTO)
         {

@@ -43,6 +43,29 @@ namespace EasyContinuity_API.Services
             return Response<Space>.Success(space);
         }
 
+        public async Task<Response<List<object>>> SearchContentsBySpace(int spaceId, string query)
+        {
+            query = query.ToLower().Trim();
+
+            var folders = await _ecDbContext.Folders
+                .Where(f => f.SpaceId == spaceId
+                        && f.IsDeleted == false
+                        && f.Name.ToLower().Contains(query))
+                .ToListAsync();
+
+            var snapshots = await _ecDbContext.Snapshots
+                .Where(s => s.SpaceId == spaceId
+                        && s.IsDeleted == false
+                        && s.Name.ToLower().Contains(query))
+                .ToListAsync();
+
+            var results = new List<object>();
+            results.AddRange(folders);
+            results.AddRange(snapshots);
+
+            return Response<List<object>>.Success(results);
+        }
+
         public async Task<Response<Space>> UpdateSpace(int id, SpaceUpdateDTO updatedSpaceDTO)
         {
             var existingSpace = await _ecDbContext.Spaces.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
@@ -66,7 +89,7 @@ namespace EasyContinuity_API.Services
                 DeletedOn = updatedSpaceDTO.DeletedOn ?? existingSpace.DeletedOn,
                 DeletedBy = updatedSpaceDTO.DeletedBy ?? existingSpace.DeletedBy
             };
-            
+
             _ecDbContext.Spaces.Update(space);
             await _ecDbContext.SaveChangesAsync();
 
