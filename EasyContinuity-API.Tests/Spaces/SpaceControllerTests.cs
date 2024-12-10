@@ -350,23 +350,24 @@ public class SpaceControllerTests
     {
         // Arrange
         var dbName = "SearchContentsDifferentSpaceControllerTest";
-        int searchSpaceId;
+        int space1Id;
 
         using (var context = CreateContext(dbName))
         {
             var space1 = new Space { Id = 1, Name = "Space 1" };
             var space2 = new Space { Id = 2, Name = "Space 2" };
-            var folder = new Folder 
+            
+            var folderInSpace2 = new Folder 
             { 
                 Name = "Test Folder",
-                SpaceId = 2,
+                SpaceId = space2.Id,
                 IsDeleted = false
             };
             
             context.Spaces.AddRange(space1, space2);
-            context.Folders.Add(folder);
+            context.Folders.Add(folderInSpace2);
             await context.SaveChangesAsync();
-            searchSpaceId = space1.Id;
+            space1Id = space1.Id;
         }
 
         using (var context = CreateContext(dbName))
@@ -375,7 +376,7 @@ public class SpaceControllerTests
             var controller = new SpaceController(service);
 
             // Act
-            var result = await controller.SearchContents(searchSpaceId, "Test");
+            var result = await controller.SearchContents(space1Id, "Test");
 
             // Assert
             var actionResult = Assert.IsType<OkObjectResult>(result.Result);

@@ -262,19 +262,20 @@ public class SpaceServiceTests
 
         var space1 = new Models.Space { Id = 1, Name = "Space 1" };
         var space2 = new Models.Space { Id = 2, Name = "Space 2" };
-        var folder = new Models.Folder 
+        
+        var folderInSpace2 = new Models.Folder 
         { 
             Name = "Test Folder",
-            SpaceId = 2,
+            SpaceId = space2.Id,
             IsDeleted = false
         };
         
         context.Spaces.AddRange(space1, space2);
-        context.Folders.Add(folder);
+        context.Folders.Add(folderInSpace2);
         await context.SaveChangesAsync();
 
         // Act
-        var result = await service.SearchContentsBySpace(1, "Test");
+        var result = await service.SearchContentsBySpace(space1.Id, "Test");
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -331,13 +332,13 @@ public class SpaceServiceTests
         { 
             Name = "Test Folder",
             SpaceId = 1,
-            IsDeleted = true  // Deleted folder
+            IsDeleted = true
         };
         var snapshot = new Models.Snapshot 
         { 
             Name = "Test Snapshot",
             SpaceId = 1,
-            IsDeleted = true  // Deleted snapshot
+            IsDeleted = true
         };
         var activeFolder = new Models.Folder 
         { 
