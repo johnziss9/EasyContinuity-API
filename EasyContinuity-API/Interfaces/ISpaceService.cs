@@ -12,6 +12,8 @@ namespace EasyContinuity_API.Interfaces
 
         Task<Response<Space>> GetSingleSpaceById(int spaceId);
 
+        Task<Response<List<object>>> SearchContentsBySpace(int spaceId, string query);
+
         Task<Response<Space>> UpdateSpace(int id, SpaceUpdateDTO updatedSpaceDTO);
     }
 }
