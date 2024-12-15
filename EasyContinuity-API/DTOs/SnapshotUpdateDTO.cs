@@ -24,6 +24,8 @@ namespace EasyContinuity_API.DTOs
 
         public int? Character { get; set; }
 
+        public bool? ForceNullCharacter { get; set; } // This is used to update the snapshot when deleting the character linked to the snapshot
+
         public string? Notes { get; set; }
 
         public string? Skin { get; set; }

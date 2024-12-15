@@ -82,7 +82,7 @@ namespace EasyContinuity_API.Services
                 Episode = updatedSnapshotDTO.Episode ?? existingSnapshot.Episode,
                 Scene = updatedSnapshotDTO.Scene ?? existingSnapshot.Scene,
                 StoryDay = updatedSnapshotDTO.StoryDay ?? existingSnapshot.StoryDay,
-                Character = updatedSnapshotDTO.Character ?? existingSnapshot.Character,
+                Character = updatedSnapshotDTO.ForceNullCharacter == true ? null : updatedSnapshotDTO.Character ?? existingSnapshot.Character,
                 Notes = updatedSnapshotDTO.Notes ?? existingSnapshot.Notes,
                 Skin = updatedSnapshotDTO.Skin ?? existingSnapshot.Skin,
                 Brows = updatedSnapshotDTO.Brows ?? existingSnapshot.Brows,

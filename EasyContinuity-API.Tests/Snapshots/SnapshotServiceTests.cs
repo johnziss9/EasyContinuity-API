@@ -22,8 +22,8 @@ public class SnapshotServiceTests
         // Arrange
         using var context = CreateContext("CreateSnapshotServiceTest");
         var service = new SnapshotService(context);
-        var snapshot = new Models.Snapshot 
-        { 
+        var snapshot = new Models.Snapshot
+        {
             Name = "Test Snapshot",
             Character = 2,
             Episode = "1",
@@ -36,11 +36,11 @@ public class SnapshotServiceTests
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
-        
+
         var returnedSnapshot = result.Data!;
         Assert.NotEqual(0, returnedSnapshot.Id);
         Assert.Equal(snapshot.Name, returnedSnapshot.Name);
-        
+
         var savedSnapshot = await context.Snapshots.FindAsync(returnedSnapshot.Id);
         Assert.NotNull(savedSnapshot);
         Assert.Equal(snapshot.Name, savedSnapshot!.Name);
@@ -157,8 +157,8 @@ public class SnapshotServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var snapshot = new Models.Snapshot 
-            { 
+            var snapshot = new Models.Snapshot
+            {
                 Name = "Test Snapshot",
                 Character = 4,
                 Episode = "Test Episode"
@@ -209,8 +209,8 @@ public class SnapshotServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var snapshot = new Models.Snapshot 
-            { 
+            var snapshot = new Models.Snapshot
+            {
                 Name = "Original Name",
                 Character = 3,
                 Episode = "Original Episode",
@@ -240,7 +240,7 @@ public class SnapshotServiceTests
             // Assert
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
-            
+
             Assert.Equal(updatedSnapshot.Name, result.Data.Name);
             Assert.Equal(updatedSnapshot.Character, result.Data.Character);
             Assert.Equal(updatedSnapshot.Episode, result.Data.Episode);
@@ -263,10 +263,10 @@ public class SnapshotServiceTests
         // Arrange
         using var context = CreateContext("UpdateSnapshotInvalidTest");
         var service = new SnapshotService(context);
-        var updatedSnapshot = new SnapshotUpdateDTO 
-        { 
+        var updatedSnapshot = new SnapshotUpdateDTO
+        {
             Name = "Updated Name",
-            Character = 4 
+            Character = 4
         };
 
         // Act
@@ -288,8 +288,8 @@ public class SnapshotServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var snapshot = new Models.Snapshot 
-            { 
+            var snapshot = new Models.Snapshot
+            {
                 Name = "Original Name",
                 Character = 4,
                 LastUpdatedOn = DateTime.UtcNow
@@ -317,6 +317,93 @@ public class SnapshotServiceTests
             var savedSnapshot = await context.Snapshots.FindAsync(snapshotId);
             Assert.NotNull(savedSnapshot);
             Assert.Equal(originalUpdateTime, savedSnapshot!.LastUpdatedOn!.Value);
+        }
+    }
+
+    [Fact]
+    public async Task UpdateSnapshot_WithForceNullCharacter_ShouldSetCharacterToNull()
+    {
+        // Arrange
+        var dbName = "UpdateSnapshotForceNullCharacterTest";
+        int snapshotId;
+
+        using (var context = CreateContext(dbName))
+        {
+            var snapshot = new Models.Snapshot
+            {
+                Name = "Test Snapshot",
+                Character = 5
+            };
+
+            context.Snapshots.Add(snapshot);
+
+            await context.SaveChangesAsync();
+            
+            snapshotId = snapshot.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SnapshotService(context);
+            var updatedSnapshot = new SnapshotUpdateDTO
+            {
+                ForceNullCharacter = true
+            };
+
+            // Act
+            var result = await service.UpdateSnapshot(snapshotId, updatedSnapshot);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Null(result.Data.Character);
+
+            // Verify in database
+            var savedSnapshot = await context.Snapshots.FindAsync(snapshotId);
+            Assert.NotNull(savedSnapshot);
+            Assert.Null(savedSnapshot.Character);
+        }
+    }
+
+    [Fact]
+    public async Task UpdateSnapshot_WithoutForceNullCharacter_ShouldKeepExistingCharacter()
+    {
+        // Arrange
+        var dbName = "UpdateSnapshotKeepCharacterTest";
+        int snapshotId;
+        int originalCharacter = 5;
+
+        using (var context = CreateContext(dbName))
+        {
+            var snapshot = new Models.Snapshot
+            {
+                Name = "Test Snapshot",
+                Character = originalCharacter
+            };
+            context.Snapshots.Add(snapshot);
+            await context.SaveChangesAsync();
+            snapshotId = snapshot.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SnapshotService(context);
+            var updatedSnapshot = new SnapshotUpdateDTO
+            {
+                Name = "Updated Name",
+                ForceNullCharacter = false
+            };
+
+            // Act
+            var result = await service.UpdateSnapshot(snapshotId, updatedSnapshot);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal(originalCharacter, result.Data.Character);
+
+            // Verify in database
+            var savedSnapshot = await context.Snapshots.FindAsync(snapshotId);
+            Assert.NotNull(savedSnapshot);
+            Assert.Equal(originalCharacter, savedSnapshot.Character);
         }
     }
 }
