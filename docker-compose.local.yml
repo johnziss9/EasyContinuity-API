@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   easy-continuity-api-local:
     build:
@@ -10,10 +8,10 @@ services:
     depends_on:
       - postgres-local
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__ECPostgresConnection=Host=${DB_HOST};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__ECPostgresConnection: "Host=postgres-local;Database=ecdb_local;Username=${DB_USER};Password=${DB_PASSWORD}"
     env_file:
-      - .env.local
+      - .env
 
   postgres-local:
     image: postgres
@@ -26,7 +24,7 @@ services:
     volumes:
       - db-local-data:/var/lib/postgresql/data
     env_file:
-      - .env.local
+      - .env
 
   pgadmin-local:
     image: dpage/pgadmin4
@@ -40,7 +38,7 @@ services:
     volumes:
       - pgadmin-local-data:/var/lib/pgadmin
     env_file:
-      - .env.local
+      - .env
 
 volumes:
   db-local-data:

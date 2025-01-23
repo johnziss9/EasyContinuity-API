@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   easy-continuity-api-dev:
     build:
@@ -10,10 +8,10 @@ services:
     depends_on:
       - postgres-dev
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__ECPostgresConnection=Host=${DB_HOST};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__ECPostgresConnection: "Host=postgres-dev;Database=ecdb_dev;Username=${DB_USER};Password=${DB_PASSWORD}"
     env_file:
-      - .env.dev
+      - .env
 
   postgres-dev:
     image: postgres
@@ -26,7 +24,7 @@ services:
     volumes:
       - db-dev-data:/var/lib/postgresql/data
     env_file:
-      - .env.dev
+      - .env
 
   pgadmin-dev:
     image: dpage/pgadmin4
@@ -40,7 +38,7 @@ services:
     volumes:
       - pgadmin-dev-data:/var/lib/pgadmin
     env_file:
-      - .env.dev
+      - .env
 
 volumes:
   db-dev-data:
