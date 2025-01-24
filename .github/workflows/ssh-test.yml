@@ -5,6 +5,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: Debug SSH values
+        run: |
+          echo "Host exists: ${{ secrets.SSH_HOST != '' }}"
+          
       - name: SSH Debug Connection
         uses: appleboy/ssh-action@master
         with:
