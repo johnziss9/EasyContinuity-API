@@ -1,21 +1,21 @@
-name: SSH Test
+name: SSH Debug
 on: workflow_dispatch
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Debug SSH values
+      - name: Check secrets
         run: |
           echo "Host exists: ${{ secrets.SSH_HOST != '' }}"
+          echo "Username exists: ${{ secrets.SSH_USERNAME != '' }}"
+          echo "Key exists: ${{ secrets.SSH_PRIVATE_KEY != '' }}"
           
-      - name: SSH Debug Connection
+      - name: SSH Test
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           debug: true
-          script: |
-            whoami
-            pwd
+          script: echo "Connected"
