@@ -10,6 +10,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Staging
       ConnectionStrings__ECPostgresConnection: "Host=postgres-preprod;Database=ecdb_preprod;Username=${DB_USER};Password=${DB_PASSWORD}"
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
     env_file:
       - .env
 
