@@ -1,48 +1,48 @@
 services:
-  easy-continuity-api-dev:
+  easy-continuity-api-uat:
     build:
       context: .
-      dockerfile: Dockerfile.test # This is looking at the same Dockerfile as the test environment.
+      dockerfile: Dockerfile.uat
     ports:
-      - "5005:80"
+      - "5004:80"
     depends_on:
-      - postgres-dev
+      - postgres-uat
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__ECPostgresConnection: "Host=postgres-dev;Database=ecdb_dev;Username=${DB_USER};Password=${DB_PASSWORD}"
+      ASPNETCORE_ENVIRONMENT: UAT
+      ConnectionStrings__ECPostgresConnection: "Host=postgres-uat;Database=ecdb_uat;Username=${DB_USER};Password=${DB_PASSWORD}"
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
     env_file:
       - .env
 
-  postgres-dev:
+  postgres-uat:
     image: postgres
     environment:
-      POSTGRES_DB: ecdb_dev
+      POSTGRES_DB: ecdb_uat
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5437:5432"
+      - "5436:5432"
     volumes:
-      - db-dev-data:/var/lib/postgresql/data
+      - db-uat-data:/var/lib/postgresql/data
     env_file:
       - .env
 
-  pgadmin-dev:
+  pgadmin-uat:
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "5055:80"
+      - "5054:80"
     depends_on:
-      - postgres-dev
+      - postgres-uat
     volumes:
-      - pgadmin-dev-data:/var/lib/pgadmin
+      - pgadmin-uat-data:/var/lib/pgadmin
     env_file:
       - .env
 
 volumes:
-  db-dev-data:
-  pgadmin-dev-data:
+  db-uat-data:
+  pgadmin-uat-data:
