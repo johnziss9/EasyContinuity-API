@@ -1,15 +1,18 @@
-name: Merge and Deploy
+name: Manual Merge to Preprod
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "yes" to confirm merge to preprod'
+        required: true
 
 jobs:
-  merge_and_deploy:
+  merge_to_preprod:
+    if: github.event.inputs.confirm == 'yes'
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0 # Fetches the entire history of the repository
 
@@ -18,15 +21,15 @@ jobs:
       with:
         dotnet-version: '8.0.403'
 
-    - name: Merge main to dev
+    - name: Merge dev to preprod
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
-        git checkout main
-        git pull origin main
         git checkout dev
-        git merge --no-ff main
-        git push origin dev
+        git pull origin dev
+        git checkout preprod
+        git merge --no-ff dev
+        git push origin preprod
 
     - name: Deploy to Linode
       uses: appleboy/ssh-action@master
@@ -37,9 +40,9 @@ jobs:
         port: ${{ secrets.SSH_PORT }}
         script: |
           cd EasyContinuity-API
-          git checkout main
-          git pull origin main
           git checkout dev
-          git merge main
-          docker compose -f docker-compose.preprod.yml down
-          docker compose -f docker-compose.dev.yml --env-file .env.dev up --build -d
+          git pull origin dev
+          git checkout preprod
+          git merge dev
+          docker compose -f docker-compose.uat.yml down
+          docker compose -f docker-compose.staging.yml up --build -d
