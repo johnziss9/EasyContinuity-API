@@ -2,9 +2,9 @@ services:
   easy-continuity-api-dev:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.test # This is looking at the same Dockerfile as the test environment.
     ports:
-      - "5001:80"
+      - "5005:80"
     depends_on:
       - postgres-dev
     environment:
@@ -19,11 +19,11 @@ services:
   postgres-dev:
     image: postgres
     environment:
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_DB: ecdb_dev
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5433:5432"
+      - "5437:5432"
     volumes:
       - db-dev-data:/var/lib/postgresql/data
     env_file:
@@ -35,7 +35,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "8081:80"
+      - "5055:80"
     depends_on:
       - postgres-dev
     volumes:

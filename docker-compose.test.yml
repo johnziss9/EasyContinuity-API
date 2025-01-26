@@ -1,48 +1,48 @@
 services:
-  easy-continuity-api-preprod:
+  easy-continuity-api-test:
     build:
       context: .
-      dockerfile: Dockerfile.preprod
+      dockerfile: Dockerfile.test
     ports:
-      - "5001:80"
+      - "5004:80"
     depends_on:
-      - postgres-preprod
+      - postgres-test
     environment:
-      ASPNETCORE_ENVIRONMENT: Staging
-      ConnectionStrings__ECPostgresConnection: "Host=postgres-preprod;Database=ecdb_preprod;Username=${DB_USER};Password=${DB_PASSWORD}"
+      ASPNETCORE_ENVIRONMENT: UAT
+      ConnectionStrings__ECPostgresConnection: "Host=postgres-test;Database=ecdb_test;Username=${DB_USER};Password=${DB_PASSWORD}"
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
     env_file:
       - .env
 
-  postgres-preprod:
+  postgres-test:
     image: postgres
     environment:
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_DB: ecdb_test
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5434:5432"
+      - "5436:5432"
     volumes:
-      - db-preprod-data:/var/lib/postgresql/data
+      - db-test-data:/var/lib/postgresql/data
     env_file:
       - .env
 
-  pgadmin-preprod:
+  pgadmin-test:
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "8082:80"
+      - "5054:80"
     depends_on:
-      - postgres-preprod
+      - postgres-test
     volumes:
-      - pgadmin-preprod-data:/var/lib/pgadmin
+      - pgadmin-test-data:/var/lib/pgadmin
     env_file:
       - .env
 
 volumes:
-  db-preprod-data:
-  pgadmin-preprod-data:
+  db-test-data:
+  pgadmin-test-data:

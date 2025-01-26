@@ -1,48 +1,48 @@
 services:
-  easy-continuity-api-local:
+  easy-continuity-api-staging:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.staging
     ports:
-      - "5001:80"
+      - "5003:80"
     depends_on:
-      - postgres-local
+      - postgres-staging
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__ECPostgresConnection: "Host=postgres-local;Database=ecdb_local;Username=${DB_USER};Password=${DB_PASSWORD}"
+      ASPNETCORE_ENVIRONMENT: Staging
+      ConnectionStrings__ECPostgresConnection: "Host=postgres-staging;Database=ecdb_staging;Username=${DB_USER};Password=${DB_PASSWORD}"
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
     env_file:
       - .env
 
-  postgres-local:
+  postgres-staging:
     image: postgres
     environment:
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_DB: ecdb_staging
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5433:5432"
+      - "5435:5432"
     volumes:
-      - db-local-data:/var/lib/postgresql/data
+      - db-staging-data:/var/lib/postgresql/data
     env_file:
       - .env
 
-  pgadmin-local:
+  pgadmin-staging:
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "8081:80"
+      - "5053:80"
     depends_on:
-      - postgres-local
+      - postgres-staging
     volumes:
-      - pgadmin-local-data:/var/lib/pgadmin
+      - pgadmin-staging-data:/var/lib/pgadmin
     env_file:
       - .env
 
 volumes:
-  db-local-data:
-  pgadmin-local-data:
+  db-staging-data:
+  pgadmin-staging-data:
