@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: 'Type "yes" to confirm merge to preprod'
+        description: 'Type "yes" to confirm merge to staging'
         required: true
 
 jobs:
