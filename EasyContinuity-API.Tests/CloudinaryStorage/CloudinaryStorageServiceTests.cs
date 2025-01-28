@@ -12,27 +12,39 @@ public class CloudinaryStorageServiceTests : IDisposable
 
     public CloudinaryStorageServiceTests()
     {
-        // Get the solution directory path
-        var currentDir = Directory.GetCurrentDirectory();
-        var solutionDir = Directory.GetParent(currentDir)?.Parent?.Parent?.Parent?.FullName;
-        var envPath = Path.Combine(solutionDir!, ".env");
+        // Get from environment variables
+        var cloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME");
+        var apiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY");
+        var apiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET");
 
-        if (!File.Exists(envPath))
+        Console.WriteLine($"Reading from environment - Cloud Name: {cloudName ?? "not found"}");
+
+        // If environment variables not found, try reading from .env as fallback
+        if (string.IsNullOrEmpty(cloudName))
         {
-            throw new FileNotFoundException($".env file not found at {envPath}");
+            var solutionDir = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.Parent?.FullName;
+            var envPath = Path.Combine(solutionDir!, ".env");
+
+            if (File.Exists(envPath))
+            {
+                var envFile = File.ReadAllLines(envPath);
+                cloudName = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_CLOUD_NAME="))?.Split('=')[1];
+                apiKey = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_KEY="))?.Split('=')[1];
+                apiSecret = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_SECRET="))?.Split('=')[1];
+            }
         }
 
-        var envFile = File.ReadAllLines(envPath);
-        var cloudName = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_CLOUD_NAME="))?.Split('=')[1];
-        var apiKey = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_KEY="))?.Split('=')[1];
-        var apiSecret = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_SECRET="))?.Split('=')[1];
+        if (string.IsNullOrEmpty(cloudName))
+        {
+            throw new Exception("Cloudinary credentials not found in environment or .env file");
+        }
 
         var configValues = new Dictionary<string, string?>
-    {
-        {"CLOUDINARY_CLOUD_NAME", cloudName},
-        {"CLOUDINARY_API_KEY", apiKey},
-        {"CLOUDINARY_API_SECRET", apiSecret}
-    };
+        {
+            {"CLOUDINARY_CLOUD_NAME", cloudName},
+            {"CLOUDINARY_API_KEY", apiKey},
+            {"CLOUDINARY_API_SECRET", apiSecret}
+        };
 
         _configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(configValues)
