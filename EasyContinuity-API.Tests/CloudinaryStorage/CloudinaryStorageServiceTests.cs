@@ -12,20 +12,10 @@ public class CloudinaryStorageServiceTests : IDisposable
 
     public CloudinaryStorageServiceTests()
     {
-        // Skip during CI/CD
-        var isCI = Environment.GetEnvironmentVariable("CI") != null;
-        if (isCI)
-        {
-            Skip.If(true, "Skipping Cloudinary tests in CI/CD environment");
-            return;
-        }
-
         // Get the solution directory path
         var currentDir = Directory.GetCurrentDirectory();
         var solutionDir = Directory.GetParent(currentDir)?.Parent?.Parent?.Parent?.FullName;
         var envPath = Path.Combine(solutionDir!, ".env");
-
-        Console.WriteLine($"Looking for .env at: {envPath}"); // Debug log
 
         if (!File.Exists(envPath))
         {
@@ -36,10 +26,6 @@ public class CloudinaryStorageServiceTests : IDisposable
         var cloudName = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_CLOUD_NAME="))?.Split('=')[1];
         var apiKey = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_KEY="))?.Split('=')[1];
         var apiSecret = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_SECRET="))?.Split('=')[1];
-
-        Console.WriteLine($"Cloud Name: {cloudName}");
-        Console.WriteLine($"API Key: {apiKey}");
-        Console.WriteLine($"API Secret: {apiSecret}");
 
         var configValues = new Dictionary<string, string?>
         {
@@ -54,6 +40,11 @@ public class CloudinaryStorageServiceTests : IDisposable
 
         _compressionService = new ImageCompressionService();
         _service = new CloudinaryStorageService(_configuration, _compressionService);
+    }
+
+    private static bool ShouldSkipCloudinaryTests()
+    {
+        return Environment.GetEnvironmentVariable("CI") != null;
     }
 
     private IFormFile CreateTestFile(string filename = "test.jpg", string contentType = "image/jpeg")
@@ -82,6 +73,11 @@ public class CloudinaryStorageServiceTests : IDisposable
     [Fact]
     public async Task UploadAsync_WithValidJpeg_ShouldSucceed()
     {
+        if (ShouldSkipCloudinaryTests())
+        {
+            Skip.If(true, "Skipping Cloudinary test in CI environment");
+        }
+
         // Arrange
         var file = CreateTestFile("test.jpg", "image/jpeg");
 
@@ -97,6 +93,11 @@ public class CloudinaryStorageServiceTests : IDisposable
     [Fact]
     public async Task UploadAsync_WithValidPng_ShouldSucceed()
     {
+        if (ShouldSkipCloudinaryTests())
+        {
+            Skip.If(true, "Skipping Cloudinary test in CI environment");
+        }
+
         // Arrange
         var file = CreateTestFile("test.png", "image/png");
 
@@ -112,6 +113,11 @@ public class CloudinaryStorageServiceTests : IDisposable
     [Fact]
     public async Task UploadAsync_WithInvalidFileType_ShouldFail()
     {
+        if (ShouldSkipCloudinaryTests())
+        {
+            Skip.If(true, "Skipping Cloudinary test in CI environment");
+        }
+
         // Arrange
         var file = CreateTestFile("test.txt", "text/plain");
 
@@ -126,6 +132,11 @@ public class CloudinaryStorageServiceTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WithValidPublicId_ShouldSucceed()
     {
+        if (ShouldSkipCloudinaryTests())
+        {
+            Skip.If(true, "Skipping Cloudinary test in CI environment");
+        }
+
         // Arrange
         var file = CreateTestFile();
         var uploadResult = await _service.UploadAsync(file);
@@ -143,6 +154,11 @@ public class CloudinaryStorageServiceTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WithInvalidPublicId_ShouldFail()
     {
+        if (ShouldSkipCloudinaryTests())
+        {
+            Skip.If(true, "Skipping Cloudinary test in CI environment");
+        }
+
         // Arrange
         var invalidId = "definitely_invalid_id_" + Guid.NewGuid();
 
@@ -157,6 +173,11 @@ public class CloudinaryStorageServiceTests : IDisposable
     [Fact]
     public async Task ExistsAsync_WithValidPublicId_ShouldReturnTrue()
     {
+        if (ShouldSkipCloudinaryTests())
+        {
+            Skip.If(true, "Skipping Cloudinary test in CI environment");
+        }
+
         // Arrange
         var file = CreateTestFile();
         var uploadResult = await _service.UploadAsync(file);
@@ -175,6 +196,11 @@ public class CloudinaryStorageServiceTests : IDisposable
     [Fact]
     public async Task ExistsAsync_WithInvalidPublicId_ShouldReturnFalse()
     {
+        if (ShouldSkipCloudinaryTests())
+        {
+            Skip.If(true, "Skipping Cloudinary test in CI environment");
+        }
+
         // Arrange
         var invalidId = "definitely_invalid_id_" + Guid.NewGuid();
 
@@ -189,6 +215,11 @@ public class CloudinaryStorageServiceTests : IDisposable
     [Fact]
     public void GetFileUrl_ShouldReturnUrl()
     {
+        if (ShouldSkipCloudinaryTests())
+        {
+            Skip.If(true, "Skipping Cloudinary test in CI environment");
+        }
+        
         // Arrange
         var publicId = "test_id";
 
