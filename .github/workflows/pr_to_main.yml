@@ -22,5 +22,8 @@ jobs:
       run: dotnet build --no-restore
 
     - name: Run tests
+        CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+        CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+        CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
       run: dotnet test --no-build --verbosity normal
       continue-on-error: false
