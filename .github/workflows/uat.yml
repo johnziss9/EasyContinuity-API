@@ -42,4 +42,7 @@ jobs:
           git checkout dev
           git merge main
           docker compose -f docker-compose.staging.yml down
+          CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }} \
+          CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }} \
+          CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }} \
           docker compose -f docker-compose.uat.yml up --build -d

@@ -1,4 +1,19 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+# These are used to pass in the Cloudinary credentials during the build process. 
+# They are not stored in the final image.
+# The .env values are not reacheable in the build process, so we need to pass them as build arguments.
+
+# Define build arguments
+ARG CLOUDINARY_CLOUD_NAME
+ARG CLOUDINARY_API_KEY
+ARG CLOUDINARY_API_SECRET
+
+# Set them as environment variables
+ENV CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME
+ENV CLOUDINARY_API_KEY=$CLOUDINARY_API_KEY
+ENV CLOUDINARY_API_SECRET=$CLOUDINARY_API_SECRET
+
 WORKDIR /app
 
 COPY *.sln .
