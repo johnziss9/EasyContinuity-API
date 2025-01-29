@@ -11,16 +11,48 @@ namespace EasyContinuity_API.Controllers
     public class AttachmentController : ControllerBase
     {
         private readonly IAttachmentService _attachmentService;
+        private readonly ICloudinaryStorageService _cloudinaryService;
 
-        public AttachmentController(IAttachmentService attachmentService)
+
+        public AttachmentController(IAttachmentService attachmentService, ICloudinaryStorageService cloudinaryService)
         {
             _attachmentService = attachmentService;
+            _cloudinaryService = cloudinaryService;
         }
 
         [HttpPost]
-        public async Task<ActionResult<Attachment>> Create(Attachment attachment)
+        public async Task<ActionResult<Attachment>> Add([FromForm] IFormFile file, [FromForm] int spaceId, [FromForm] int? snapshotId = null, [FromForm] int? folderId = null)
         {
-            return ResponseHelper.HandleErrorAndReturn(await _attachmentService.CreateAttachment(attachment));
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded");
+            }
+
+            var uploadResult = await _cloudinaryService.UploadAsync(file);
+            if (!uploadResult.IsSuccess || uploadResult.Data == null)
+            {
+                return StatusCode(uploadResult.StatusCode, uploadResult.Message);
+            }
+
+            var attachment = new Attachment
+            {
+                SpaceId = spaceId,
+                SnapshotId = snapshotId,
+                FolderId = folderId,
+                Name = file.FileName,
+                Path = uploadResult.Data,
+                Size = file.Length,
+                MimeType = file.ContentType,
+                IsDeleted = false,
+                // AddedBy = null,
+                AddedOn = DateTime.UtcNow,
+                // LastUpdatedBy = null,
+                LastUpdatedOn = null,
+                DeletedOn = null,
+                // DeletedBy = null
+            };
+
+            return ResponseHelper.HandleErrorAndReturn(await _attachmentService.AddAttachment(attachment));
         }
 
         [HttpGet("space/{spaceId}")]

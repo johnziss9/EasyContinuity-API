@@ -1,14 +1,66 @@
 using EasyContinuity_API.Controllers;
 using EasyContinuity_API.Data;
 using EasyContinuity_API.DTOs;
+using EasyContinuity_API.Models;
 using EasyContinuity_API.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace EasyContinuity_API.Tests.Attachments;
 
 public class AttachmentControllerTests
 {
+    private readonly List<string> _uploadedPublicIds = new();
+    private readonly IConfiguration _configuration;
+    private readonly IImageCompressionService _compressionService;
+    private readonly ICloudinaryStorageService _cloudinaryService;
+
+    public AttachmentControllerTests()
+    {
+        // Reuse your configuration setup from CloudinaryStorageServiceTests
+        var cloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME");
+        var apiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY");
+        var apiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET");
+
+        if (string.IsNullOrEmpty(cloudName) || string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(apiSecret))
+        {
+            var currentDir = Directory.GetCurrentDirectory();
+            var solutionDir = Directory.GetParent(currentDir)?.Parent?.Parent?.Parent?.FullName;
+            var envPath = Path.Combine(solutionDir!, ".env");
+
+            if (File.Exists(envPath))
+            {
+                var envFile = File.ReadAllLines(envPath);
+                cloudName = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_CLOUD_NAME="))?.Split('=')[1];
+                apiKey = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_KEY="))?.Split('=')[1];
+                apiSecret = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_SECRET="))?.Split('=')[1];
+            }
+        }
+
+        if (string.IsNullOrEmpty(cloudName) || string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(apiSecret))
+        {
+            throw new InvalidOperationException("Cloudinary credentials are missing.");
+        }
+
+        var configValues = new Dictionary<string, string?>
+        {
+            {"CLOUDINARY_CLOUD_NAME", cloudName},
+            {"CLOUDINARY_API_KEY", apiKey},
+            {"CLOUDINARY_API_SECRET", apiSecret}
+        };
+
+        _configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(configValues)
+            .Build();
+
+        _compressionService = new ImageCompressionService();
+        _cloudinaryService = new CloudinaryStorageService(_configuration, _compressionService);
+    }
+
     private ECDbContext CreateContext(string dbName)
     {
         var options = new DbContextOptionsBuilder<ECDbContext>()
@@ -18,40 +70,70 @@ public class AttachmentControllerTests
         return new ECDbContext(options);
     }
 
+    private IFormFile CreateTestImage(string filename = "test.jpg", string contentType = "image/jpeg")
+    {
+        using var image = new Image<Rgba32>(100, 100);
+        var stream = new MemoryStream();
+
+        if (contentType == "image/jpeg")
+        {
+            image.SaveAsJpeg(stream);
+        }
+        else if (contentType == "image/png")
+        {
+            image.SaveAsPng(stream);
+        }
+
+        stream.Position = 0;
+
+        return new FormFile(stream, 0, stream.Length, "test", filename)
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = contentType
+        };
+    }
+
     [Fact]
-    public async Task Create_ShouldReturnCreatedAttachment()
+    public async Task Add_WithValidFile_ShouldReturnCreatedAttachment()
     {
         // Arrange
-
-        // Creates a new in-memory database with a unique name "CreateControllerTest"
-        using var context = CreateContext("CreateControllerTest");
+        using var context = CreateContext("AddFileControllerTest");
         var service = new AttachmentService(context);
-        var controller = new AttachmentController(service);
-        var attachment = new Models.Attachment 
-        { 
-            Name = "Test Attachment",
-            Path = "/path/to/file",
-            Size = 1024,
-            MimeType = "application/pdf"
-        };
+        var controller = new AttachmentController(service, _cloudinaryService);
+
+        var file = CreateTestImage();
+        var spaceId = 1;
 
         // Act
-        var result = await controller.Create(attachment);
+        var result = await controller.Add(file, spaceId);
 
         // Assert
-
-        // Verify we got an OkObjectResult (HTTP 200 OK)
         var actionResult = Assert.IsType<OkObjectResult>(result.Result);
-        // Verify the returned object is a Attachment
-        var returnValue = Assert.IsType<Models.Attachment>(actionResult.Value);
-        Assert.Equal(attachment.Name, returnValue.Name);
+        var attachment = Assert.IsType<Attachment>(actionResult.Value);
         
-        var savedAttachment = await context.Attachments.FindAsync(returnValue.Id);
-        Assert.NotNull(savedAttachment);
-        Assert.Equal(attachment.Name, savedAttachment.Name);
-        Assert.Equal(attachment.Path, savedAttachment.Path);
-        Assert.Equal(attachment.Size, savedAttachment.Size);
-        Assert.Equal(attachment.MimeType, savedAttachment.MimeType);
+        Assert.Equal(file.FileName, attachment.Name);
+        Assert.NotNull(attachment.Path);
+        Assert.Equal(file.Length, attachment.Size);
+        Assert.Equal(file.ContentType, attachment.MimeType);
+        Assert.Equal(spaceId, attachment.SpaceId);
+
+        // Store publicId for cleanup
+        _uploadedPublicIds.Add(attachment.Path);
+    }
+
+    [Fact]
+    public async Task Add_WithNoFile_ShouldReturnBadRequest()
+    {
+        // Arrange
+        using var context = CreateContext("AddNoFileControllerTest");
+        var service = new AttachmentService(context);
+        var controller = new AttachmentController(service, _cloudinaryService);
+
+        // Act
+        var result = await controller.Add(file: null!, spaceId: 1);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result.Result);
     }
 
     [Fact]
@@ -74,7 +156,7 @@ public class AttachmentControllerTests
         using (var context = CreateContext(dbName))
         {
             var service = new AttachmentService(context);
-            var controller = new AttachmentController(service);
+            var controller = new AttachmentController(service, _cloudinaryService);
 
             // Act
             var result = await controller.GetAllBySpace(spaceId);
@@ -109,7 +191,7 @@ public class AttachmentControllerTests
         using (var context = CreateContext(dbName))
         {
             var service = new AttachmentService(context);
-            var controller = new AttachmentController(service);
+            var controller = new AttachmentController(service, _cloudinaryService);
 
             // Act
             var result = await controller.GetAllByFolder(folderId);
@@ -144,7 +226,7 @@ public class AttachmentControllerTests
         using (var context = CreateContext(dbName))
         {
             var service = new AttachmentService(context);
-            var controller = new AttachmentController(service);
+            var controller = new AttachmentController(service, _cloudinaryService);
 
             // Act
             var result = await controller.GetAllBySnapshot(snapshotId);
@@ -179,7 +261,7 @@ public class AttachmentControllerTests
         using (var context = CreateContext(dbName))
         {
             var service = new AttachmentService(context);
-            var controller = new AttachmentController(service);
+            var controller = new AttachmentController(service, _cloudinaryService);
 
             // Act
             var result = await controller.GetAllRootBySpace(spaceId);
@@ -218,7 +300,7 @@ public class AttachmentControllerTests
         using (var context = CreateContext(dbName))
         {
             var service = new AttachmentService(context);
-            var controller = new AttachmentController(service);
+            var controller = new AttachmentController(service, _cloudinaryService);
 
             // Act
             var result = await controller.GetSingle(attachmentId);
@@ -239,7 +321,7 @@ public class AttachmentControllerTests
         // Arrange
         using var context = CreateContext("GetSingleInvalidControllerTest");
         var service = new AttachmentService(context);
-        var controller = new AttachmentController(service);
+        var controller = new AttachmentController(service, _cloudinaryService);
 
         // Act
         var result = await controller.GetSingle(999);
@@ -272,7 +354,7 @@ public class AttachmentControllerTests
         using (var context = CreateContext(dbName))
         {
             var service = new AttachmentService(context);
-            var controller = new AttachmentController(service);
+            var controller = new AttachmentController(service, _cloudinaryService);
             var updatedAttachment = new AttachmentUpdateDTO 
             { 
                 Name = "Updated Name",
@@ -305,7 +387,7 @@ public class AttachmentControllerTests
         // Arrange
         using var context = CreateContext("UpdateAttachmentInvalidControllerTest");
         var service = new AttachmentService(context);
-        var controller = new AttachmentController(service);
+        var controller = new AttachmentController(service, _cloudinaryService);
         var attachment = new AttachmentUpdateDTO 
         { 
             Name = "Test Attachment",
@@ -317,5 +399,20 @@ public class AttachmentControllerTests
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result.Result);
+    }
+
+    protected virtual void Dispose()
+    {
+        foreach (var publicId in _uploadedPublicIds)
+        {
+            try
+            {
+                _cloudinaryService.DeleteAsync(publicId).Wait();
+            }
+            catch
+            {
+                // Ignore cleanup errors
+            }
+        }
     }
 }

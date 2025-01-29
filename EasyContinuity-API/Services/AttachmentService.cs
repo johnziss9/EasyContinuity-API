@@ -16,8 +16,33 @@ namespace EasyContinuity_API.Services
             _ecDbContext = ecDbContext;
         }
 
-        public async Task<Response<Attachment>> CreateAttachment(Attachment attachment)
+        public async Task<Response<Attachment>> AddAttachment(Attachment attachment)
         {
+            if (attachment.SpaceId <= 0)
+            {
+                return Response<Attachment>.Fail(400, "SpaceId is required and must be greater than 0");
+            }
+
+            if (string.IsNullOrWhiteSpace(attachment.Name))
+            {
+                return Response<Attachment>.Fail(400, "Name is required");
+            }
+
+            if (string.IsNullOrWhiteSpace(attachment.Path))
+            {
+                return Response<Attachment>.Fail(400, "Path is required");
+            }
+
+            if (attachment.Size <= 0)
+            {
+                return Response<Attachment>.Fail(400, "Size must be greater than 0");
+            }
+
+            if (string.IsNullOrWhiteSpace(attachment.MimeType))
+            {
+                return Response<Attachment>.Fail(400, "MimeType is required");
+            }
+
             _ecDbContext.Attachments.Add(attachment);
             await _ecDbContext.SaveChangesAsync();
 
