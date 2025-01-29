@@ -57,7 +57,7 @@ public class CloudinaryStorageServiceTests
        // Arrange
        var file = CreateTestFile();
        _compressionService.CompressImageAsync(Arg.Any<IFormFile>(), Arg.Any<int>(), Arg.Any<int>())
-           .Returns(Response<byte[]>.Success(null));
+           .Returns(Response<byte[]>.Success(null!));
 
        // Act
        var result = await _service.UploadAsync(file);
