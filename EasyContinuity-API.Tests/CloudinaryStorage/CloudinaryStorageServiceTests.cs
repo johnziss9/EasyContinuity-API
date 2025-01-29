@@ -17,7 +17,7 @@ public class CloudinaryStorageServiceTests : IDisposable
         var apiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY");
         var apiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET");
 
-        // If not set via environment variables (which includes GitHub Secrets), try .env
+        // If not set via environment variables (GitHub Secrets), try .env
         if (string.IsNullOrEmpty(cloudName) || string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(apiSecret))
         {
             // Get the solution directory path
