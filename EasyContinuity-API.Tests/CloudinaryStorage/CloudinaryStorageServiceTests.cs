@@ -12,32 +12,34 @@ public class CloudinaryStorageServiceTests : IDisposable
 
     public CloudinaryStorageServiceTests()
     {
-        // Get from environment variables
-        var cloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME");
-        var apiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY");
-        var apiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET");
-
-        Console.WriteLine($"Reading from environment - Cloud Name: {cloudName ?? "not found"}");
-
-        // If environment variables not found, try reading from .env as fallback
-        if (string.IsNullOrEmpty(cloudName))
+        // Skip during CI/CD
+        var isCI = Environment.GetEnvironmentVariable("CI") != null;
+        if (isCI)
         {
-            var solutionDir = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.Parent?.FullName;
-            var envPath = Path.Combine(solutionDir!, ".env");
-
-            if (File.Exists(envPath))
-            {
-                var envFile = File.ReadAllLines(envPath);
-                cloudName = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_CLOUD_NAME="))?.Split('=')[1];
-                apiKey = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_KEY="))?.Split('=')[1];
-                apiSecret = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_SECRET="))?.Split('=')[1];
-            }
+            Skip.If(true, "Skipping Cloudinary tests in CI/CD environment");
+            return;
         }
 
-        if (string.IsNullOrEmpty(cloudName))
+        // Get the solution directory path
+        var currentDir = Directory.GetCurrentDirectory();
+        var solutionDir = Directory.GetParent(currentDir)?.Parent?.Parent?.Parent?.FullName;
+        var envPath = Path.Combine(solutionDir!, ".env");
+
+        Console.WriteLine($"Looking for .env at: {envPath}"); // Debug log
+
+        if (!File.Exists(envPath))
         {
-            throw new Exception("Cloudinary credentials not found in environment or .env file");
+            throw new FileNotFoundException($".env file not found at {envPath}");
         }
+
+        var envFile = File.ReadAllLines(envPath);
+        var cloudName = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_CLOUD_NAME="))?.Split('=')[1];
+        var apiKey = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_KEY="))?.Split('=')[1];
+        var apiSecret = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_SECRET="))?.Split('=')[1];
+
+        Console.WriteLine($"Cloud Name: {cloudName}");
+        Console.WriteLine($"API Key: {apiKey}");
+        Console.WriteLine($"API Secret: {apiSecret}");
 
         var configValues = new Dictionary<string, string?>
         {
