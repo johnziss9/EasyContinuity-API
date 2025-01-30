@@ -18,6 +18,8 @@ namespace EasyContinuity_API.Services
 
         public async Task<Response<Attachment>> AddAttachment(Attachment attachment)
         {
+            const int MaxFileSizeInBytes = 15 * 1024 * 1024;
+
             if (attachment.SpaceId <= 0)
             {
                 return Response<Attachment>.Fail(400, "SpaceId is required and must be greater than 0");
@@ -33,19 +35,35 @@ namespace EasyContinuity_API.Services
                 return Response<Attachment>.Fail(400, "Path is required");
             }
 
-            if (attachment.Size <= 0)
-            {
-                return Response<Attachment>.Fail(400, "Size must be greater than 0");
-            }
-
             if (string.IsNullOrWhiteSpace(attachment.MimeType))
             {
                 return Response<Attachment>.Fail(400, "MimeType is required");
             }
 
+            if (attachment.Size <= 0)
+            {
+                return Response<Attachment>.Fail(400, "Size must be greater than 0");
+            }
+
+            if (attachment.Size > MaxFileSizeInBytes)
+            {
+                return Response<Attachment>.Fail(400, $"File size exceeds maximum limit of 15MB");
+            }
+
+            // Check number of attachments in a snapshot before adding new one
+            if (attachment.SnapshotId.HasValue)
+            {
+                var existingAttachmentsCount = await _ecDbContext.Attachments
+                    .CountAsync(a => a.SnapshotId == attachment.SnapshotId && !a.IsDeleted);
+
+                if (existingAttachmentsCount >= 6)
+                {
+                    return Response<Attachment>.Fail(400, "Maximum of 6 images per snapshot allowed");
+                }
+            }
+
             _ecDbContext.Attachments.Add(attachment);
             await _ecDbContext.SaveChangesAsync();
-
             return Response<Attachment>.Success(attachment);
         }
 
@@ -110,7 +128,7 @@ namespace EasyContinuity_API.Services
                 MimeType = updatedAttachmentDTO.MimeType ?? existingAttachment.MimeType,
                 IsDeleted = updatedAttachmentDTO.IsDeleted ?? existingAttachment.IsDeleted,
                 AddedBy = existingAttachment.AddedBy,
-                AddedOn = existingAttachment.AddedOn, 
+                AddedOn = existingAttachment.AddedOn,
                 LastUpdatedBy = updatedAttachmentDTO.LastUpdatedBy ?? existingAttachment.LastUpdatedBy,
                 LastUpdatedOn = updatedAttachmentDTO.LastUpdatedOn ?? existingAttachment.LastUpdatedOn,
                 DeletedOn = updatedAttachmentDTO.DeletedOn ?? existingAttachment.DeletedOn,
