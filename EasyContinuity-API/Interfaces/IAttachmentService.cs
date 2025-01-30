@@ -6,7 +6,7 @@ namespace EasyContinuity_API.Interfaces
 {
     public interface IAttachmentService
     {
-        Task<Response<Attachment>> CreateAttachment(Attachment attachment);
+        Task<Response<Attachment>> AddAttachment(Attachment attachment);
 
         Task<Response<List<Attachment>>> GetAllAttachmentsBySpaceId(int spaceId);
 

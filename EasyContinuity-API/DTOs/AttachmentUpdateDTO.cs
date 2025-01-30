@@ -10,7 +10,7 @@ namespace EasyContinuity_API.DTOs
         
         public string? Path { get; set; }
         
-        public int? Size { get; set; }
+        public long? Size { get; set; }
         
         public string? MimeType { get; set; }
         
