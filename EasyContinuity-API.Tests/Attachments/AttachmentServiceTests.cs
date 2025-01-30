@@ -22,8 +22,8 @@ public class AttachmentServiceTests
         // Arrange
         using var context = CreateContext("AddAttachmentServiceTest");
         var service = new AttachmentService(context);
-        var attachment = new Models.Attachment 
-        { 
+        var attachment = new Models.Attachment
+        {
             SpaceId = 1,
             Name = "Test Attachment",
             Path = "/path/to/file",
@@ -39,11 +39,11 @@ public class AttachmentServiceTests
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
-        
+
         var returnedAttachment = result.Data!;
         Assert.NotEqual(0, returnedAttachment.Id);
         Assert.Equal(attachment.Name, returnedAttachment.Name);
-        
+
         var savedAttachment = await context.Attachments.FindAsync(returnedAttachment.Id);
         Assert.NotNull(savedAttachment);
         Assert.Equal(attachment.Name, savedAttachment!.Name);
@@ -61,8 +61,8 @@ public class AttachmentServiceTests
         // Arrange
         using var context = CreateContext("AddAttachmentNoSpaceTest");
         var service = new AttachmentService(context);
-        var attachment = new Models.Attachment 
-        { 
+        var attachment = new Models.Attachment
+        {
             Name = "Test Attachment",
             Path = "/path/to/file",
             Size = 1024,
@@ -86,8 +86,8 @@ public class AttachmentServiceTests
         // Arrange
         using var context = CreateContext("AddAttachmentNoMetadataTest");
         var service = new AttachmentService(context);
-        var attachment = new Models.Attachment 
-        { 
+        var attachment = new Models.Attachment
+        {
             SpaceId = 1,
             // Missing Name
             Path = "/path/to/file",
@@ -111,8 +111,8 @@ public class AttachmentServiceTests
         // Arrange
         using var context = CreateContext("AddAttachmentCloudinaryTest");
         var service = new AttachmentService(context);
-        var attachment = new Models.Attachment 
-        { 
+        var attachment = new Models.Attachment
+        {
             Name = "Test Attachment",
             Path = "cloudinary_public_id",  // Cloudinary public ID format
             Size = 1024,
@@ -129,6 +129,144 @@ public class AttachmentServiceTests
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal("cloudinary_public_id", result.Data.Path);
+    }
+
+    [Fact]
+    public async Task AddAttachment_WithFileSizeExceedingLimit_ShouldReturnFailure()
+    {
+        // Arrange
+        using var context = CreateContext("AddAttachmentLargeFileTest");
+        var service = new AttachmentService(context);
+        var attachment = new Models.Attachment
+        {
+            SpaceId = 1,
+            Name = "Large File",
+            Path = "path_to_file",
+            Size = 16 * 1024 * 1024,
+            MimeType = "image/jpeg",
+            AddedOn = DateTime.UtcNow,
+            AddedBy = 2
+        };
+
+        // Act
+        var result = await service.AddAttachment(attachment);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(400, result.StatusCode);
+        Assert.Contains("File size exceeds maximum limit", result.Message);
+    }
+
+    [Fact]
+    public async Task AddAttachment_WithMaxSnapshotImages_ShouldReturnFailure()
+    {
+        // Arrange
+        var dbName = "AddAttachmentMaxImagesTest";
+        using var context = CreateContext(dbName);
+        var service = new AttachmentService(context);
+        var snapshotId = 1;
+
+        // Add 6 attachments first
+        for (int i = 0; i < 6; i++)
+        {
+            await context.Attachments.AddAsync(new Models.Attachment
+            {
+                SpaceId = 1,
+                SnapshotId = snapshotId,
+                Name = $"Existing Image {i}",
+                Path = $"path_{i}",
+                Size = 1024,
+                MimeType = "image/jpeg",
+                IsDeleted = false
+            });
+        }
+        await context.SaveChangesAsync();
+
+        var newAttachment = new Models.Attachment
+        {
+            SpaceId = 1,
+            SnapshotId = snapshotId,
+            Name = "One Too Many",
+            Path = "path_7",
+            Size = 1024,
+            MimeType = "image/jpeg"
+        };
+
+        // Act
+        var result = await service.AddAttachment(newAttachment);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(400, result.StatusCode);
+        Assert.Contains("Maximum of 6 images per snapshot", result.Message);
+    }
+
+    [Fact]
+    public async Task AddAttachment_WithMissingRequiredFields_ShouldReturnFirstError()
+    {
+        // Arrange
+        using var context = CreateContext("AddAttachmentMissingFieldsTest");
+        var service = new AttachmentService(context);
+        var attachment = new Models.Attachment
+        {
+            // All invalid fields but this should be the first error caught (SpaceId)
+            SpaceId = 0,
+            Name = string.Empty,
+            Path = string.Empty,
+            Size = 0,
+            MimeType = string.Empty
+        };
+
+        // Act
+        var result = await service.AddAttachment(attachment);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(400, result.StatusCode);
+        Assert.Contains("SpaceId", result.Message);
+    }
+
+    [Fact]
+    public async Task AddAttachment_WithDeletedSnapshotAttachments_ShouldAllowNewAttachment()
+    {
+        // Arrange
+        var dbName = "AddAttachmentWithDeletedTest";
+        using var context = CreateContext(dbName);
+        var service = new AttachmentService(context);
+        var snapshotId = 1;
+
+        // Add 6 attachments but mark them as deleted
+        for (int i = 0; i < 6; i++)
+        {
+            await context.Attachments.AddAsync(new Models.Attachment
+            {
+                SpaceId = 1,
+                SnapshotId = snapshotId,
+                Name = $"Deleted Image {i}",
+                Path = $"path_{i}",
+                Size = 1024,
+                MimeType = "image/jpeg",
+                IsDeleted = true
+            });
+        }
+        await context.SaveChangesAsync();
+
+        var newAttachment = new Models.Attachment
+        {
+            SpaceId = 1,
+            SnapshotId = snapshotId,
+            Name = "New Image",
+            Path = "new_path",
+            Size = 1024,
+            MimeType = "image/jpeg"
+        };
+
+        // Act
+        var result = await service.AddAttachment(newAttachment);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
     }
 
     [Fact]
@@ -277,8 +415,8 @@ public class AttachmentServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var attachment = new Models.Attachment 
-            { 
+            var attachment = new Models.Attachment
+            {
                 Name = "Test Attachment",
                 Path = "/path/to/file",
                 Size = 1024,
@@ -337,8 +475,8 @@ public class AttachmentServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var attachment = new Models.Attachment 
-            { 
+            var attachment = new Models.Attachment
+            {
                 Name = "Original Name",
                 Path = "/original/path",
                 Size = 1024,
@@ -372,7 +510,7 @@ public class AttachmentServiceTests
             // Assert
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
-            
+
             Assert.Equal(updatedAttachment.Name, result.Data.Name);
             Assert.Equal(updatedAttachment.Path, result.Data.Path);
             Assert.Equal(updatedAttachment.Size, result.Data.Size);
@@ -403,8 +541,8 @@ public class AttachmentServiceTests
         // Arrange
         using var context = CreateContext("UpdateAttachmentInvalidTest");
         var service = new AttachmentService(context);
-        var updatedAttachment = new AttachmentUpdateDTO 
-        { 
+        var updatedAttachment = new AttachmentUpdateDTO
+        {
             Name = "Updated Name",
             Path = "/updated/path"
         };
@@ -428,8 +566,8 @@ public class AttachmentServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var attachment = new Models.Attachment 
-            { 
+            var attachment = new Models.Attachment
+            {
                 Name = "Test Name",
                 Path = "/test/path",
                 Size = 2048,
