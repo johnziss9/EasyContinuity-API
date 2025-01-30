@@ -19,7 +19,7 @@ namespace EasyContinuity_API.Models
         public string Path { get; set; } = "";
 
         [Required(ErrorMessage = "Size is required.")]
-        public int Size { get; set; }
+        public long Size { get; set; }
 
         [Required(ErrorMessage = "MIME Type is required.")]
         public string MimeType { get; set; } = "";
