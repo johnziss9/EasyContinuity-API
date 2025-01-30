@@ -17,13 +17,14 @@ public class AttachmentServiceTests
     }
 
     [Fact]
-    public async Task CreateAttachment_ShouldAddAttachmentAndReturnSuccess()
+    public async Task AddAttachment_ShouldAddAttachmentAndReturnSuccess()
     {
         // Arrange
-        using var context = CreateContext("CreateAttachmentServiceTest");
+        using var context = CreateContext("AddAttachmentServiceTest");
         var service = new AttachmentService(context);
         var attachment = new Models.Attachment 
         { 
+            SpaceId = 1,
             Name = "Test Attachment",
             Path = "/path/to/file",
             Size = 1024,
@@ -33,7 +34,7 @@ public class AttachmentServiceTests
         };
 
         // Act
-        var result = await service.CreateAttachment(attachment);
+        var result = await service.AddAttachment(attachment);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -50,6 +51,84 @@ public class AttachmentServiceTests
         Assert.Equal(attachment.Size, savedAttachment.Size);
         Assert.Equal(attachment.MimeType, savedAttachment.MimeType);
         Assert.Equal(attachment.AddedBy, savedAttachment.AddedBy);
+        Assert.Equal(attachment.SpaceId, savedAttachment.SpaceId);
+        Assert.NotEqual(default(DateTime), savedAttachment.AddedOn);
+    }
+
+    [Fact]
+    public async Task AddAttachment_WithoutSpaceId_ShouldReturnFailure()
+    {
+        // Arrange
+        using var context = CreateContext("AddAttachmentNoSpaceTest");
+        var service = new AttachmentService(context);
+        var attachment = new Models.Attachment 
+        { 
+            Name = "Test Attachment",
+            Path = "/path/to/file",
+            Size = 1024,
+            MimeType = "application/pdf",
+            AddedOn = DateTime.UtcNow,
+            AddedBy = 2,
+            SpaceId = 0  // Invalid space ID
+        };
+
+        // Act
+        var result = await service.AddAttachment(attachment);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(400, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task AddAttachment_WithoutRequiredMetadata_ShouldReturnFailure()
+    {
+        // Arrange
+        using var context = CreateContext("AddAttachmentNoMetadataTest");
+        var service = new AttachmentService(context);
+        var attachment = new Models.Attachment 
+        { 
+            SpaceId = 1,
+            // Missing Name
+            Path = "/path/to/file",
+            // Missing Size
+            // Missing MimeType
+            AddedOn = DateTime.UtcNow,
+            AddedBy = 2
+        };
+
+        // Act
+        var result = await service.AddAttachment(attachment);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(400, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task Addttachment_WithValidCloudinaryPath_ShouldSucceed()
+    {
+        // Arrange
+        using var context = CreateContext("AddAttachmentCloudinaryTest");
+        var service = new AttachmentService(context);
+        var attachment = new Models.Attachment 
+        { 
+            Name = "Test Attachment",
+            Path = "cloudinary_public_id",  // Cloudinary public ID format
+            Size = 1024,
+            MimeType = "image/jpeg",
+            SpaceId = 1,
+            AddedOn = DateTime.UtcNow,
+            AddedBy = 2
+        };
+
+        // Act
+        var result = await service.AddAttachment(attachment);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
+        Assert.Equal("cloudinary_public_id", result.Data.Path);
     }
 
     [Fact]
