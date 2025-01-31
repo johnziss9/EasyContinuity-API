@@ -30,6 +30,16 @@ namespace EasyContinuity_API.Services
                 return Response<Attachment>.Fail(400, "Name is required");
             }
 
+            if (attachment.Name.Length > 150)
+            {
+                return Response<Attachment>.Fail(400, "Name cannot exceed 150 characters");
+            }
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(attachment.Name, @"^[\w\-. \[\]()\s]+$"))
+            {
+                return Response<Attachment>.Fail(400, "Name can only contain letters, numbers, spaces, and basic punctuation (. - _ [ ] ( ))");
+            }
+
             if (string.IsNullOrWhiteSpace(attachment.Path))
             {
                 return Response<Attachment>.Fail(400, "Path is required");
