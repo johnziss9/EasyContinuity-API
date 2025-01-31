@@ -81,6 +81,67 @@ public class AttachmentServiceTests
     }
 
     [Fact]
+    public async Task AddAttachment_WithInvalidName_ShouldReturnFailure()
+    {
+        // Arrange
+        using var context = CreateContext("AddAttachmentInvalidNameTest");
+        var service = new AttachmentService(context);
+        var attachment = new Models.Attachment 
+        { 
+            SpaceId = 1,
+            Name = new string('a', 151), // Name exceeds 150 characters
+            Path = "path_to_file",
+            Size = 1024,
+            MimeType = "image/jpeg",
+            AddedOn = DateTime.UtcNow,
+            AddedBy = 2
+        };
+
+        // Act
+        var result = await service.AddAttachment(attachment);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(400, result.StatusCode);
+        Assert.Contains("Name cannot exceed 150 characters", result.Message);
+    }
+
+    [Theory]
+    [InlineData("Test File [1]", true)]
+    [InlineData("My Document (2023)", true)]
+    [InlineData("Report [Final] (v2).jpg", true)]
+    [InlineData("Test@File", false)]
+    [InlineData("File/Name", false)]
+    [InlineData("File\\Name", false)]
+    public async Task AddAttachment_WithVariousNames_ShouldValidateCorrectly(string fileName, bool shouldBeValid)
+    {
+        // Arrange
+        using var context = CreateContext($"AddAttachment_{fileName}_Test");
+        var service = new AttachmentService(context);
+        var attachment = new Models.Attachment 
+        { 
+            SpaceId = 1,
+            Name = fileName,
+            Path = "path_to_file",
+            Size = 1024,
+            MimeType = "image/jpeg",
+            AddedOn = DateTime.UtcNow,
+            AddedBy = 2
+        };
+
+        // Act
+        var result = await service.AddAttachment(attachment);
+
+        // Assert
+        Assert.Equal(shouldBeValid, result.IsSuccess);
+        if (!shouldBeValid)
+        {
+            Assert.Equal(400, result.StatusCode);
+            Assert.Contains("Name can only contain", result.Message);
+        }
+    }
+
+    [Fact]
     public async Task AddAttachment_WithoutRequiredMetadata_ShouldReturnFailure()
     {
         // Arrange
