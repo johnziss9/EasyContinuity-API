@@ -56,12 +56,14 @@ public class CloudinaryStorageService : ICloudinaryStorageService
     {
         try
         {
-            var result = await _cloudinary.DeleteResourcesAsync(publicId);
+            var result = await _cloudinary.DestroyAsync(new DeletionParams(publicId));
 
-            // Check the Deleted dictionary for "not_found"
-            if (result.Deleted != null &&
-                result.Deleted.ContainsKey(publicId) &&
-                result.Deleted[publicId] == "not_found")
+            if (result == null || result.Error != null)
+            {
+                return Response<bool>.Fail(404, "Resource not found");
+            }
+
+            if (result.Result == "not found")
             {
                 return Response<bool>.Fail(404, "Resource not found");
             }
@@ -73,7 +75,6 @@ public class CloudinaryStorageService : ICloudinaryStorageService
             return Response<bool>.InternalError(ex);
         }
     }
-
 
     public async Task<Response<bool>> ExistsAsync(string publicId)
     {
