@@ -98,7 +98,7 @@ public class AttachmentControllerTests
     {
         // Arrange
         using var context = CreateContext("AddFileControllerTest");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var controller = new AttachmentController(service, _cloudinaryService);
 
         var file = CreateTestImage();
@@ -126,7 +126,7 @@ public class AttachmentControllerTests
     {
         // Arrange
         using var context = CreateContext("AddNoFileControllerTest");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var controller = new AttachmentController(service, _cloudinaryService);
 
         // Act
@@ -155,7 +155,7 @@ public class AttachmentControllerTests
 
         using (var context = CreateContext(dbName))
         {
-            var service = new AttachmentService(context);
+            var service = new AttachmentService(context, _cloudinaryService);
             var controller = new AttachmentController(service, _cloudinaryService);
 
             // Act
@@ -190,7 +190,7 @@ public class AttachmentControllerTests
 
         using (var context = CreateContext(dbName))
         {
-            var service = new AttachmentService(context);
+            var service = new AttachmentService(context, _cloudinaryService);
             var controller = new AttachmentController(service, _cloudinaryService);
 
             // Act
@@ -225,7 +225,7 @@ public class AttachmentControllerTests
 
         using (var context = CreateContext(dbName))
         {
-            var service = new AttachmentService(context);
+            var service = new AttachmentService(context, _cloudinaryService);
             var controller = new AttachmentController(service, _cloudinaryService);
 
             // Act
@@ -260,7 +260,7 @@ public class AttachmentControllerTests
 
         using (var context = CreateContext(dbName))
         {
-            var service = new AttachmentService(context);
+            var service = new AttachmentService(context, _cloudinaryService);
             var controller = new AttachmentController(service, _cloudinaryService);
 
             // Act
@@ -299,7 +299,7 @@ public class AttachmentControllerTests
 
         using (var context = CreateContext(dbName))
         {
-            var service = new AttachmentService(context);
+            var service = new AttachmentService(context, _cloudinaryService);
             var controller = new AttachmentController(service, _cloudinaryService);
 
             // Act
@@ -320,7 +320,7 @@ public class AttachmentControllerTests
     {
         // Arrange
         using var context = CreateContext("GetSingleInvalidControllerTest");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var controller = new AttachmentController(service, _cloudinaryService);
 
         // Act
@@ -353,7 +353,7 @@ public class AttachmentControllerTests
 
         using (var context = CreateContext(dbName))
         {
-            var service = new AttachmentService(context);
+            var service = new AttachmentService(context, _cloudinaryService);
             var controller = new AttachmentController(service, _cloudinaryService);
             var updatedAttachment = new AttachmentUpdateDTO 
             { 
@@ -386,7 +386,7 @@ public class AttachmentControllerTests
     {
         // Arrange
         using var context = CreateContext("UpdateAttachmentInvalidControllerTest");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var controller = new AttachmentController(service, _cloudinaryService);
         var attachment = new AttachmentUpdateDTO 
         { 
