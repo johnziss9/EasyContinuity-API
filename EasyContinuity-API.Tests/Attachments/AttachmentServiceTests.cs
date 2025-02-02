@@ -1,12 +1,63 @@
 using EasyContinuity_API.Data;
 using EasyContinuity_API.DTOs;
 using EasyContinuity_API.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace EasyContinuity_API.Tests.Attachments;
 
 public class AttachmentServiceTests
 {
+    private readonly IConfiguration _configuration;
+    private readonly IImageCompressionService _compressionService;
+    private readonly ICloudinaryStorageService _cloudinaryService;
+    private readonly List<string> _uploadedPublicIds = new();
+
+    public AttachmentServiceTests()
+    {
+        // Get credentials from environment or .env file
+        var cloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME");
+        var apiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY");
+        var apiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET");
+
+        if (string.IsNullOrEmpty(cloudName) || string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(apiSecret))
+        {
+            var currentDir = Directory.GetCurrentDirectory();
+            var solutionDir = Directory.GetParent(currentDir)?.Parent?.Parent?.Parent?.FullName;
+            var envPath = Path.Combine(solutionDir!, ".env");
+
+            if (File.Exists(envPath))
+            {
+                var envFile = File.ReadAllLines(envPath);
+                cloudName = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_CLOUD_NAME="))?.Split('=')[1];
+                apiKey = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_KEY="))?.Split('=')[1];
+                apiSecret = envFile.FirstOrDefault(l => l.StartsWith("CLOUDINARY_API_SECRET="))?.Split('=')[1];
+            }
+        }
+
+        if (string.IsNullOrEmpty(cloudName) || string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(apiSecret))
+        {
+            throw new InvalidOperationException("Cloudinary credentials are missing.");
+        }
+
+        var configValues = new Dictionary<string, string?>
+        {
+            {"CLOUDINARY_CLOUD_NAME", cloudName},
+            {"CLOUDINARY_API_KEY", apiKey},
+            {"CLOUDINARY_API_SECRET", apiSecret}
+        };
+
+        _configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(configValues)
+            .Build();
+
+        _compressionService = new ImageCompressionService();
+        _cloudinaryService = new CloudinaryStorageService(_configuration, _compressionService);
+    }
+
     private ECDbContext CreateContext(string dbName)
     {
         var options = new DbContextOptionsBuilder<ECDbContext>()
@@ -16,12 +67,35 @@ public class AttachmentServiceTests
         return new ECDbContext(options);
     }
 
+    private IFormFile CreateTestImage(string filename = "test.jpg", string contentType = "image/jpeg")
+    {
+        using var image = new Image<Rgba32>(100, 100);
+        var stream = new MemoryStream();
+
+        if (contentType == "image/jpeg")
+        {
+            image.SaveAsJpeg(stream);
+        }
+        else if (contentType == "image/png")
+        {
+            image.SaveAsPng(stream);
+        }
+
+        stream.Position = 0;
+
+        return new FormFile(stream, 0, stream.Length, "test", filename)
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = contentType
+        };
+    }
+
     [Fact]
     public async Task AddAttachment_ShouldAddAttachmentAndReturnSuccess()
     {
         // Arrange
         using var context = CreateContext("AddAttachmentServiceTest");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var attachment = new Models.Attachment
         {
             SpaceId = 1,
@@ -60,7 +134,7 @@ public class AttachmentServiceTests
     {
         // Arrange
         using var context = CreateContext("AddAttachmentNoSpaceTest");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var attachment = new Models.Attachment
         {
             Name = "Test Attachment",
@@ -85,7 +159,7 @@ public class AttachmentServiceTests
     {
         // Arrange
         using var context = CreateContext("AddAttachmentInvalidNameTest");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var attachment = new Models.Attachment 
         { 
             SpaceId = 1,
@@ -117,7 +191,7 @@ public class AttachmentServiceTests
     {
         // Arrange
         using var context = CreateContext($"AddAttachment_{fileName}_Test");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var attachment = new Models.Attachment 
         { 
             SpaceId = 1,
@@ -146,7 +220,7 @@ public class AttachmentServiceTests
     {
         // Arrange
         using var context = CreateContext("AddAttachmentNoMetadataTest");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var attachment = new Models.Attachment
         {
             SpaceId = 1,
@@ -171,7 +245,7 @@ public class AttachmentServiceTests
     {
         // Arrange
         using var context = CreateContext("AddAttachmentCloudinaryTest");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var attachment = new Models.Attachment
         {
             Name = "Test Attachment",
@@ -197,7 +271,7 @@ public class AttachmentServiceTests
     {
         // Arrange
         using var context = CreateContext("AddAttachmentLargeFileTest");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var attachment = new Models.Attachment
         {
             SpaceId = 1,
@@ -224,7 +298,7 @@ public class AttachmentServiceTests
         // Arrange
         var dbName = "AddAttachmentMaxImagesTest";
         using var context = CreateContext(dbName);
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var snapshotId = 1;
 
         // Add 6 attachments first
@@ -267,7 +341,7 @@ public class AttachmentServiceTests
     {
         // Arrange
         using var context = CreateContext("AddAttachmentMissingFieldsTest");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var attachment = new Models.Attachment
         {
             // All invalid fields but this should be the first error caught (SpaceId)
@@ -293,7 +367,7 @@ public class AttachmentServiceTests
         // Arrange
         var dbName = "AddAttachmentWithDeletedTest";
         using var context = CreateContext(dbName);
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var snapshotId = 1;
 
         // Add 6 attachments but mark them as deleted
@@ -349,7 +423,7 @@ public class AttachmentServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var service = new AttachmentService(context);
+            var service = new AttachmentService(context, _cloudinaryService);
 
             // Act
             var result = await service.GetAllAttachmentsBySpaceId(spaceId);
@@ -383,7 +457,7 @@ public class AttachmentServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var service = new AttachmentService(context);
+            var service = new AttachmentService(context, _cloudinaryService);
 
             // Act
             var result = await service.GetAllAttachmentsByFolderId(folderId);
@@ -417,7 +491,7 @@ public class AttachmentServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var service = new AttachmentService(context);
+            var service = new AttachmentService(context, _cloudinaryService);
 
             // Act
             var result = await service.GetAllAttachmentsBySnapshotId(snapshotId);
@@ -451,7 +525,7 @@ public class AttachmentServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var service = new AttachmentService(context);
+            var service = new AttachmentService(context, _cloudinaryService);
 
             // Act
             var result = await service.GetAllRootAttachmentsBySpaceId(spaceId);
@@ -492,7 +566,7 @@ public class AttachmentServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var service = new AttachmentService(context);
+            var service = new AttachmentService(context, _cloudinaryService);
 
             // Act
             var result = await service.GetSingleAttachmentById(attachmentId);
@@ -514,7 +588,7 @@ public class AttachmentServiceTests
     {
         // Arrange
         using var context = CreateContext("GetSingleAttachmentInvalidTest");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
 
         // Act
         var result = await service.GetSingleAttachmentById(999);
@@ -534,12 +608,26 @@ public class AttachmentServiceTests
         var dateAdded = DateTime.UtcNow.AddDays(-1);
         var dateUpdated = DateTime.UtcNow;
 
+        // Upload initial file to Cloudinary
+        var initialFile = CreateTestImage("original.jpg", "image/jpeg");
+        var initialUploadResult = await _cloudinaryService.UploadAsync(initialFile);
+        Assert.True(initialUploadResult.IsSuccess);
+        var initialPublicId = initialUploadResult.Data!;
+        _uploadedPublicIds.Add(initialPublicId);
+
+        // Upload second file that we'll update to
+        var updatedFile = CreateTestImage("updated.jpg", "image/jpeg");
+        var updatedUploadResult = await _cloudinaryService.UploadAsync(updatedFile);
+        Assert.True(updatedUploadResult.IsSuccess);
+        var updatedPublicId = updatedUploadResult.Data!;
+        _uploadedPublicIds.Add(updatedPublicId);
+
         using (var context = CreateContext(dbName))
         {
             var attachment = new Models.Attachment
             {
                 Name = "Original Name",
-                Path = "/original/path",
+                Path = initialPublicId,
                 Size = 1024,
                 MimeType = "application/pdf",
                 IsDeleted = false,
@@ -553,11 +641,11 @@ public class AttachmentServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var service = new AttachmentService(context);
+            var service = new AttachmentService(context, _cloudinaryService);
             var updatedAttachment = new AttachmentUpdateDTO
             {
                 Name = "Updated Name",
-                Path = "/updated/path",
+                Path = updatedPublicId,
                 Size = 2048,
                 MimeType = "image/jpeg",
                 IsDeleted = true,
@@ -593,6 +681,10 @@ public class AttachmentServiceTests
             Assert.Equal(3, savedAttachment.AddedBy);
             Assert.Equal(dateUpdated, savedAttachment.LastUpdatedOn);
             Assert.Equal(4, savedAttachment.LastUpdatedBy);
+
+            // Verify old file was deleted from Cloudinary
+            var oldFileExists = await _cloudinaryService.ExistsAsync(initialPublicId);
+            Assert.False(oldFileExists.Data);
         }
     }
 
@@ -601,7 +693,7 @@ public class AttachmentServiceTests
     {
         // Arrange
         using var context = CreateContext("UpdateAttachmentInvalidTest");
-        var service = new AttachmentService(context);
+        var service = new AttachmentService(context, _cloudinaryService);
         var updatedAttachment = new AttachmentUpdateDTO
         {
             Name = "Updated Name",
@@ -643,7 +735,7 @@ public class AttachmentServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var service = new AttachmentService(context);
+            var service = new AttachmentService(context, _cloudinaryService);
             var updatedAttachment = new AttachmentUpdateDTO
             {
                 Name = "Test Name",
@@ -660,6 +752,83 @@ public class AttachmentServiceTests
             var savedAttachment = await context.Attachments.FindAsync(attachmentId);
             Assert.NotNull(savedAttachment);
             Assert.Equal(originalUpdateTime, savedAttachment!.LastUpdatedOn!.Value);
+        }
+    }
+
+    [Fact]
+    public async Task UpdateAttachment_WhenSoftDeleting_ShouldDeleteFromCloudinary()
+    {
+        // Arrange
+        var dbName = "UpdateAttachmentSoftDeleteTest";
+        int attachmentId;
+
+        // Upload a file to Cloudinary
+        var testFile = CreateTestImage();
+        var uploadResult = await _cloudinaryService.UploadAsync(testFile);
+        Assert.True(uploadResult.IsSuccess);
+        var cloudinaryPublicId = uploadResult.Data!;
+        _uploadedPublicIds.Add(cloudinaryPublicId); // Add to cleanup list in case test fails
+
+        using (var context = CreateContext(dbName))
+        {
+            var attachment = new Models.Attachment 
+            { 
+                SpaceId = 1,
+                Name = "Test Attachment",
+                Path = cloudinaryPublicId, // Use the public ID from the upload
+                Size = 1024,
+                MimeType = "image/jpeg",
+                IsDeleted = false
+            };
+            context.Attachments.Add(attachment);
+            await context.SaveChangesAsync();
+            attachmentId = attachment.Id;
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new AttachmentService(context, _cloudinaryService);
+            var updateDto = new AttachmentUpdateDTO 
+            { 
+                IsDeleted = true,
+                DeletedOn = DateTime.UtcNow,
+                DeletedBy = 123
+            };
+
+            // Act
+            var result = await service.UpdateAttachment(attachmentId, updateDto);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Data);
+            Assert.True(result.Data.IsDeleted);
+
+            // Verify file was deleted from Cloudinary
+            var existsResult = await _cloudinaryService.ExistsAsync(cloudinaryPublicId);
+            Assert.True(existsResult.IsSuccess);
+            Assert.False(existsResult.Data); // Should return false as file should be deleted
+
+            // Verify database record was updated
+            var savedAttachment = await context.Attachments.FindAsync(attachmentId);
+            Assert.NotNull(savedAttachment);
+            Assert.True(savedAttachment!.IsDeleted);
+            Assert.NotNull(savedAttachment.DeletedOn);
+            Assert.Equal(123, savedAttachment.DeletedBy);
+        }
+    }
+
+    protected virtual void Dispose()
+    {
+        foreach (var publicId in _uploadedPublicIds)
+        {
+            try
+            {
+                _cloudinaryService.DeleteAsync(publicId).Wait();
+            }
+            catch
+            {
+                // Ignore cleanup errors
+            }
         }
     }
 }
