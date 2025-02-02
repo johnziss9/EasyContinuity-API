@@ -10,10 +10,12 @@ namespace EasyContinuity_API.Services
     public class AttachmentService : IAttachmentService
     {
         private readonly ECDbContext _ecDbContext;
+        private readonly ICloudinaryStorageService _cloudinaryService;
 
-        public AttachmentService(ECDbContext ecDbContext)
+        public AttachmentService(ECDbContext ecDbContext, ICloudinaryStorageService cloudinaryService)
         {
             _ecDbContext = ecDbContext;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<Response<Attachment>> AddAttachment(Attachment attachment)
@@ -124,6 +126,15 @@ namespace EasyContinuity_API.Services
             if (existingAttachment == null)
             {
                 return Response<Attachment>.Fail(404, "Attachment Not Found");
+            }
+
+            if (updatedAttachmentDTO.IsDeleted == true && !existingAttachment.IsDeleted)
+            {
+                var deleteResult = await _cloudinaryService.DeleteAsync(existingAttachment.Path);
+                if (!deleteResult.IsSuccess)
+                {
+                    return Response<Attachment>.Fail(deleteResult.StatusCode, $"Failed to delete from Cloudinary: {deleteResult.Message}");
+                }
             }
 
             var attachment = new Attachment
