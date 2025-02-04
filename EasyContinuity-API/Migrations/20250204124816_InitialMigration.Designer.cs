@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EasyContinuity_API.Migrations
 {
     [DbContext(typeof(ECDbContext))]
-    [Migration("20241127085317_InitialMigration")]
+    [Migration("20250204124816_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -51,6 +51,9 @@ namespace EasyContinuity_API.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsStored")
+                        .HasColumnType("boolean");
+
                     b.Property<int?>("LastUpdatedBy")
                         .HasColumnType("integer");
 
@@ -69,8 +72,8 @@ namespace EasyContinuity_API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Size")
-                        .HasColumnType("integer");
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
 
                     b.Property<int?>("SnapshotId")
                         .HasColumnType("integer");

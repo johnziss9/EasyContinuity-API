@@ -37,5 +37,7 @@ namespace EasyContinuity_API.Models
         public DateTime? DeletedOn { get; set; }
 
         public int? DeletedBy { get; set; }
+
+        public bool IsStored { get; set; }
     }
 }

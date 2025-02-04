@@ -166,7 +166,7 @@ namespace EasyContinuity_API.Migrations
                     FolderId = table.Column<int>(type: "integer", nullable: true),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Path = table.Column<string>(type: "text", nullable: false),
-                    Size = table.Column<int>(type: "integer", nullable: false),
+                    Size = table.Column<long>(type: "bigint", nullable: false),
                     MimeType = table.Column<string>(type: "text", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     AddedBy = table.Column<int>(type: "integer", nullable: false),
@@ -174,7 +174,8 @@ namespace EasyContinuity_API.Migrations
                     AddedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     DeletedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DeletedBy = table.Column<int>(type: "integer", nullable: true)
+                    DeletedBy = table.Column<int>(type: "integer", nullable: true),
+                    IsStored = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
