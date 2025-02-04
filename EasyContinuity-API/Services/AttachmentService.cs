@@ -127,16 +127,7 @@ namespace EasyContinuity_API.Services
             {
                 return Response<Attachment>.Fail(404, "Attachment Not Found");
             }
-
-            if (updatedAttachmentDTO.IsDeleted == true && !existingAttachment.IsDeleted)
-            {
-                var deleteResult = await _cloudinaryService.DeleteAsync(existingAttachment.Path);
-                if (!deleteResult.IsSuccess)
-                {
-                    return Response<Attachment>.Fail(deleteResult.StatusCode, $"Failed to delete from Cloudinary: {deleteResult.Message}");
-                }
-            }
-
+            
             var attachment = new Attachment
             {
                 Id = id,
@@ -153,7 +144,8 @@ namespace EasyContinuity_API.Services
                 LastUpdatedBy = updatedAttachmentDTO.LastUpdatedBy ?? existingAttachment.LastUpdatedBy,
                 LastUpdatedOn = updatedAttachmentDTO.LastUpdatedOn ?? existingAttachment.LastUpdatedOn,
                 DeletedOn = updatedAttachmentDTO.DeletedOn ?? existingAttachment.DeletedOn,
-                DeletedBy = updatedAttachmentDTO.DeletedBy ?? existingAttachment.DeletedBy
+                DeletedBy = updatedAttachmentDTO.DeletedBy ?? existingAttachment.DeletedBy,
+                IsStored = updatedAttachmentDTO.IsStored ?? existingAttachment.IsStored
             };
 
             _ecDbContext.Attachments.Update(attachment);

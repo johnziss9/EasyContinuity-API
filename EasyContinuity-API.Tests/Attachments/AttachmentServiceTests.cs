@@ -160,8 +160,8 @@ public class AttachmentServiceTests
         // Arrange
         using var context = CreateContext("AddAttachmentInvalidNameTest");
         var service = new AttachmentService(context, _cloudinaryService);
-        var attachment = new Models.Attachment 
-        { 
+        var attachment = new Models.Attachment
+        {
             SpaceId = 1,
             Name = new string('a', 151), // Name exceeds 150 characters
             Path = "path_to_file",
@@ -192,8 +192,8 @@ public class AttachmentServiceTests
         // Arrange
         using var context = CreateContext($"AddAttachment_{fileName}_Test");
         var service = new AttachmentService(context, _cloudinaryService);
-        var attachment = new Models.Attachment 
-        { 
+        var attachment = new Models.Attachment
+        {
             SpaceId = 1,
             Name = fileName,
             Path = "path_to_file",
@@ -608,31 +608,18 @@ public class AttachmentServiceTests
         var dateAdded = DateTime.UtcNow.AddDays(-1);
         var dateUpdated = DateTime.UtcNow;
 
-        // Upload initial file to Cloudinary
-        var initialFile = CreateTestImage("original.jpg", "image/jpeg");
-        var initialUploadResult = await _cloudinaryService.UploadAsync(initialFile);
-        Assert.True(initialUploadResult.IsSuccess);
-        var initialPublicId = initialUploadResult.Data!;
-        _uploadedPublicIds.Add(initialPublicId);
-
-        // Upload second file that we'll update to
-        var updatedFile = CreateTestImage("updated.jpg", "image/jpeg");
-        var updatedUploadResult = await _cloudinaryService.UploadAsync(updatedFile);
-        Assert.True(updatedUploadResult.IsSuccess);
-        var updatedPublicId = updatedUploadResult.Data!;
-        _uploadedPublicIds.Add(updatedPublicId);
-
         using (var context = CreateContext(dbName))
         {
             var attachment = new Models.Attachment
             {
                 Name = "Original Name",
-                Path = initialPublicId,
+                Path = "/test/path",
                 Size = 1024,
                 MimeType = "application/pdf",
                 IsDeleted = false,
                 AddedOn = dateAdded,
-                AddedBy = 3
+                AddedBy = 3,
+                IsStored = true
             };
             context.Attachments.Add(attachment);
             await context.SaveChangesAsync();
@@ -645,7 +632,7 @@ public class AttachmentServiceTests
             var updatedAttachment = new AttachmentUpdateDTO
             {
                 Name = "Updated Name",
-                Path = updatedPublicId,
+                Path = "/updated/path",
                 Size = 2048,
                 MimeType = "image/jpeg",
                 IsDeleted = true,
@@ -681,10 +668,6 @@ public class AttachmentServiceTests
             Assert.Equal(3, savedAttachment.AddedBy);
             Assert.Equal(dateUpdated, savedAttachment.LastUpdatedOn);
             Assert.Equal(4, savedAttachment.LastUpdatedBy);
-
-            // Verify old file was deleted from Cloudinary
-            var oldFileExists = await _cloudinaryService.ExistsAsync(initialPublicId);
-            Assert.False(oldFileExists.Data);
         }
     }
 
@@ -752,68 +735,6 @@ public class AttachmentServiceTests
             var savedAttachment = await context.Attachments.FindAsync(attachmentId);
             Assert.NotNull(savedAttachment);
             Assert.Equal(originalUpdateTime, savedAttachment!.LastUpdatedOn!.Value);
-        }
-    }
-
-    [Fact]
-    public async Task UpdateAttachment_WhenSoftDeleting_ShouldDeleteFromCloudinary()
-    {
-        // Arrange
-        var dbName = "UpdateAttachmentSoftDeleteTest";
-        int attachmentId;
-
-        // Upload a file to Cloudinary
-        var testFile = CreateTestImage();
-        var uploadResult = await _cloudinaryService.UploadAsync(testFile);
-        Assert.True(uploadResult.IsSuccess);
-        var cloudinaryPublicId = uploadResult.Data!;
-        _uploadedPublicIds.Add(cloudinaryPublicId); // Add to cleanup list in case test fails
-
-        using (var context = CreateContext(dbName))
-        {
-            var attachment = new Models.Attachment 
-            { 
-                SpaceId = 1,
-                Name = "Test Attachment",
-                Path = cloudinaryPublicId, // Use the public ID from the upload
-                Size = 1024,
-                MimeType = "image/jpeg",
-                IsDeleted = false
-            };
-            context.Attachments.Add(attachment);
-            await context.SaveChangesAsync();
-            attachmentId = attachment.Id;
-        }
-
-        using (var context = CreateContext(dbName))
-        {
-            var service = new AttachmentService(context, _cloudinaryService);
-            var updateDto = new AttachmentUpdateDTO 
-            { 
-                IsDeleted = true,
-                DeletedOn = DateTime.UtcNow,
-                DeletedBy = 123
-            };
-
-            // Act
-            var result = await service.UpdateAttachment(attachmentId, updateDto);
-
-            // Assert
-            Assert.True(result.IsSuccess);
-            Assert.NotNull(result.Data);
-            Assert.True(result.Data.IsDeleted);
-
-            // Verify file was deleted from Cloudinary
-            var existsResult = await _cloudinaryService.ExistsAsync(cloudinaryPublicId);
-            Assert.True(existsResult.IsSuccess);
-            Assert.False(existsResult.Data); // Should return false as file should be deleted
-
-            // Verify database record was updated
-            var savedAttachment = await context.Attachments.FindAsync(attachmentId);
-            Assert.NotNull(savedAttachment);
-            Assert.True(savedAttachment!.IsDeleted);
-            Assert.NotNull(savedAttachment.DeletedOn);
-            Assert.Equal(123, savedAttachment.DeletedBy);
         }
     }
 

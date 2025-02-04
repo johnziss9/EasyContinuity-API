@@ -23,5 +23,7 @@ namespace EasyContinuity_API.DTOs
         public DateTime? DeletedOn { get; set; }
         
         public int? DeletedBy { get; set; }
+
+        public bool? IsStored { get; set; }
     }
 }
