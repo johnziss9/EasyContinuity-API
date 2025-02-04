@@ -116,6 +116,7 @@ public class AttachmentControllerTests
         Assert.Equal(file.Length, attachment.Size);
         Assert.Equal(file.ContentType, attachment.MimeType);
         Assert.Equal(spaceId, attachment.SpaceId);
+        Assert.True(attachment.IsStored); 
 
         // Store publicId for cleanup
         _uploadedPublicIds.Add(attachment.Path);

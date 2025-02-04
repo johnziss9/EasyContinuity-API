@@ -48,6 +48,9 @@ namespace EasyContinuity_API.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsStored")
+                        .HasColumnType("boolean");
+
                     b.Property<int?>("LastUpdatedBy")
                         .HasColumnType("integer");
 
@@ -66,8 +69,8 @@ namespace EasyContinuity_API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Size")
-                        .HasColumnType("integer");
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
 
                     b.Property<int?>("SnapshotId")
                         .HasColumnType("integer");

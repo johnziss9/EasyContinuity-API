@@ -50,6 +50,7 @@ namespace EasyContinuity_API.Controllers
                 LastUpdatedOn = null,
                 DeletedOn = null,
                 // DeletedBy = null
+                IsStored = uploadResult.IsSuccess // Basing this on the upload of the attachment result
             };
 
             return ResponseHelper.HandleErrorAndReturn(await _attachmentService.AddAttachment(attachment));
