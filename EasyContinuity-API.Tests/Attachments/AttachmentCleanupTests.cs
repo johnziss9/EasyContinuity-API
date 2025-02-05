@@ -195,125 +195,125 @@ public class AttachmentCleanupTests
         Assert.False(updatedAttachment.IsStored);
     }
 
-[Fact]
-public async Task CleanupService_WhenCloudinaryFails_ShouldNotUpdateIsStored()
-{
-    // Arrange
-    using var context = CreateContext("CleanupCloudinaryFailTest");
-    var service = new AttachmentCleanupService(context, _cloudinaryService);
-
-    var attachment = new Attachment
+    [Fact]
+    public async Task CleanupService_WhenCloudinaryFails_ShouldNotUpdateIsStored()
     {
-        Name = "Test Attachment",
-        Path = "invalid_cloudinary_id",  // Invalid ID will cause deletion to fail
-        IsDeleted = true,
-        IsStored = true
-    };
-    context.Attachments.Add(attachment);
-    await context.SaveChangesAsync();
+        // Arrange
+        using var context = CreateContext("CleanupCloudinaryFailTest");
+        var service = new AttachmentCleanupService(context, _cloudinaryService);
 
-    // Act
-    await service.CleanupDeletedAttachments();
+        var attachment = new Attachment
+        {
+            Name = "Test Attachment",
+            Path = "invalid_cloudinary_id",  // Invalid ID will cause deletion to fail
+            IsDeleted = true,
+            IsStored = true
+        };
+        context.Attachments.Add(attachment);
+        await context.SaveChangesAsync();
 
-    // Assert
-    var updatedAttachment = await context.Attachments.FindAsync(attachment.Id);
-    Assert.NotNull(updatedAttachment);
-    Assert.True(updatedAttachment.IsStored);  // Should still be marked as stored
-}
+        // Act
+        await service.CleanupDeletedAttachments();
 
-[Fact]
-public async Task CleanupService_WithMultipleRecords_ShouldProcessAll()
-{
-    // Arrange
-    using var context = CreateContext("CleanupMultipleRecordsTest");
-    var service = new AttachmentCleanupService(context, _cloudinaryService);
-
-    // Upload multiple test files
-    var cloudinaryIds = new List<string>();
-    for (int i = 0; i < 3; i++)
-    {
-        var testFile = CreateTestImage($"test{i}.jpg");
-        var uploadResult = await _cloudinaryService.UploadAsync(testFile);
-        Assert.True(uploadResult.IsSuccess);
-        cloudinaryIds.Add(uploadResult.Data!);
-        _uploadedPublicIds.Add(uploadResult.Data!);
-    }
-
-    var attachments = cloudinaryIds.Select(id => new Attachment
-    {
-        Name = $"Test Attachment {id}",
-        Path = id,
-        IsDeleted = true,
-        IsStored = true
-    }).ToList();
-
-    context.Attachments.AddRange(attachments);
-    await context.SaveChangesAsync();
-
-    // Act
-    await service.CleanupDeletedAttachments();
-
-    // Assert
-    foreach (var attachment in attachments)
-    {
+        // Assert
         var updatedAttachment = await context.Attachments.FindAsync(attachment.Id);
         Assert.NotNull(updatedAttachment);
-        Assert.False(updatedAttachment.IsStored);
-
-        var existsResult = await _cloudinaryService.ExistsAsync(attachment.Path);
-        Assert.False(existsResult.Data);
+        Assert.True(updatedAttachment.IsStored);  // Should still be marked as stored
     }
-}
 
-[Fact]
-public async Task CleanupService_WithInvalidCloudinaryId_ShouldHandleGracefully()
-{
-    // Arrange
-    using var context = CreateContext("CleanupInvalidIdTest");
-    var service = new AttachmentCleanupService(context, _cloudinaryService);
-
-    // Upload one valid file and create one invalid entry
-    var testFile = CreateTestImage();
-    var uploadResult = await _cloudinaryService.UploadAsync(testFile);
-    Assert.True(uploadResult.IsSuccess);
-    var validId = uploadResult.Data!;
-    _uploadedPublicIds.Add(validId);
-
-    var attachments = new[]
+    [Fact]
+    public async Task CleanupService_WithMultipleRecords_ShouldProcessAll()
     {
-        new Attachment
+        // Arrange
+        using var context = CreateContext("CleanupMultipleRecordsTest");
+        var service = new AttachmentCleanupService(context, _cloudinaryService);
+
+        // Upload multiple test files
+        var cloudinaryIds = new List<string>();
+        for (int i = 0; i < 3; i++)
         {
-            Name = "Valid ID",
-            Path = validId,
-            IsDeleted = true,
-            IsStored = true
-        },
-        new Attachment
-        {
-            Name = "Invalid ID",
-            Path = "definitely_invalid_id",
-            IsDeleted = true,
-            IsStored = true
+            var testFile = CreateTestImage($"test{i}.jpg");
+            var uploadResult = await _cloudinaryService.UploadAsync(testFile);
+            Assert.True(uploadResult.IsSuccess);
+            cloudinaryIds.Add(uploadResult.Data!);
+            _uploadedPublicIds.Add(uploadResult.Data!);
         }
-    };
 
-    context.Attachments.AddRange(attachments);
-    await context.SaveChangesAsync();
+        var attachments = cloudinaryIds.Select(id => new Attachment
+        {
+            Name = $"Test Attachment {id}",
+            Path = id,
+            IsDeleted = true,
+            IsStored = true
+        }).ToList();
 
-    // Act
-    await service.CleanupDeletedAttachments();
+        context.Attachments.AddRange(attachments);
+        await context.SaveChangesAsync();
 
-    // Assert
-    // Valid ID attachment should be processed
-    var validAttachment = await context.Attachments.FindAsync(attachments[0].Id);
-    Assert.NotNull(validAttachment);
-    Assert.False(validAttachment.IsStored);
+        // Act
+        await service.CleanupDeletedAttachments();
 
-    // Invalid ID attachment should be handled gracefully
-    var invalidAttachment = await context.Attachments.FindAsync(attachments[1].Id);
-    Assert.NotNull(invalidAttachment);
-    Assert.True(invalidAttachment.IsStored);  // Should still be marked as stored since deletion failed
-}
+        // Assert
+        foreach (var attachment in attachments)
+        {
+            var updatedAttachment = await context.Attachments.FindAsync(attachment.Id);
+            Assert.NotNull(updatedAttachment);
+            Assert.False(updatedAttachment.IsStored);
+
+            var existsResult = await _cloudinaryService.ExistsAsync(attachment.Path);
+            Assert.False(existsResult.Data);
+        }
+    }
+
+    [Fact]
+    public async Task CleanupService_WithInvalidCloudinaryId_ShouldHandleGracefully()
+    {
+        // Arrange
+        using var context = CreateContext("CleanupInvalidIdTest");
+        var service = new AttachmentCleanupService(context, _cloudinaryService);
+
+        // Upload one valid file and create one invalid entry
+        var testFile = CreateTestImage();
+        var uploadResult = await _cloudinaryService.UploadAsync(testFile);
+        Assert.True(uploadResult.IsSuccess);
+        var validId = uploadResult.Data!;
+        _uploadedPublicIds.Add(validId);
+
+        var attachments = new[]
+        {
+            new Attachment
+            {
+                Name = "Valid ID",
+                Path = validId,
+                IsDeleted = true,
+                IsStored = true
+            },
+            new Attachment
+            {
+                Name = "Invalid ID",
+                Path = "definitely_invalid_id",
+                IsDeleted = true,
+                IsStored = true
+            }
+        };
+
+        context.Attachments.AddRange(attachments);
+        await context.SaveChangesAsync();
+
+        // Act
+        await service.CleanupDeletedAttachments();
+
+        // Assert
+        // Valid ID attachment should be processed
+        var validAttachment = await context.Attachments.FindAsync(attachments[0].Id);
+        Assert.NotNull(validAttachment);
+        Assert.False(validAttachment.IsStored);
+
+        // Invalid ID attachment should be handled gracefully
+        var invalidAttachment = await context.Attachments.FindAsync(attachments[1].Id);
+        Assert.NotNull(invalidAttachment);
+        Assert.True(invalidAttachment.IsStored);  // Should still be marked as stored since deletion failed
+    }
 
     protected virtual void Dispose()
     {

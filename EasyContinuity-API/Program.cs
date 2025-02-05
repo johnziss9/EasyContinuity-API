@@ -28,16 +28,15 @@ builder.Services.AddScoped<AttachmentCleanupService>();
 builder.Services.AddQuartz(q =>
 {
     var jobKey = new JobKey("AttachmentCleanup");
-    
+
     q.AddJob<AttachmentCleanupJob>(opts => opts.WithIdentity(jobKey));
 
     q.AddTrigger(opts => opts
         .ForJob(jobKey)
         .WithIdentity("AttachmentCleanup-Trigger")
-        .WithCronSchedule("0 */2 * * * ?")
-        // For production: change to run every 7 days at midnight:
-        // .WithCronSchedule("0 0 0 */7 * ?")
-        );
+        .WithCronSchedule("0 0 0 */2 * ?") // This is every 2 days at midnight
+        // .WithCronSchedule("0 */2 * * * ?") // This is every 2 minutes used for testing
+    );
 });
 
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
