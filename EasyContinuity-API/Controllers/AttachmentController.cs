@@ -21,38 +21,64 @@ namespace EasyContinuity_API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Attachment>> Add([FromForm] IFormFile file, [FromForm] int spaceId, [FromForm] int? snapshotId = null, [FromForm] int? folderId = null)
+        public async Task<ActionResult<IEnumerable<Attachment>>> Add([FromForm] IFormCollection form, [FromForm] int spaceId, [FromForm] int? snapshotId = null, [FromForm] int? folderId = null)
         {
-            if (file == null || file.Length == 0)
+            var files = form.Files;
+            
+            if (files == null || files.Count == 0)
             {
-                return BadRequest("No file uploaded");
+                return BadRequest("No files uploaded");
             }
 
-            var uploadResult = await _cloudinaryService.UploadAsync(file);
-            if (!uploadResult.IsSuccess || uploadResult.Data == null)
+            // Check if adding these files would exceed the snapshot limit
+            if (snapshotId.HasValue)
             {
-                return StatusCode(uploadResult.StatusCode, uploadResult.Message);
+                var existingCount = await _attachmentService.GetAllAttachmentsBySnapshotId(snapshotId.Value);
+                if (existingCount?.Data?.Count + files.Count > 6)
+                {
+                    return BadRequest("Maximum of 6 images per snapshot allowed");
+                }
             }
 
-            var attachment = new Attachment
-            {
-                SpaceId = spaceId,
-                SnapshotId = snapshotId,
-                FolderId = folderId,
-                Name = file.FileName,
-                Path = uploadResult.Data,
-                Size = file.Length,
-                MimeType = file.ContentType,
-                IsDeleted = false,
-                // AddedBy = null,
-                AddedOn = DateTime.UtcNow,
-                // LastUpdatedBy = null,
-                LastUpdatedOn = null,
-                DeletedOn = null,
-                // DeletedBy = null
-            };
+            var attachments = new List<Attachment>();
 
-            return ResponseHelper.HandleErrorAndReturn(await _attachmentService.AddAttachment(attachment));
+            foreach (var file in files)
+            {
+                var uploadResult = await _cloudinaryService.UploadAsync(file);
+                if (!uploadResult.IsSuccess || uploadResult.Data == null)
+                {
+                    return StatusCode(uploadResult.StatusCode, uploadResult.Message ?? "Upload failed");
+                }
+
+                var attachment = new Attachment
+                {
+                    SpaceId = spaceId,
+                    SnapshotId = snapshotId,
+                    FolderId = folderId,
+                    Name = file.FileName,
+                    Path = uploadResult.Data,
+                    Size = file.Length,
+                    MimeType = file.ContentType,
+                    IsDeleted = false,
+                    // AddedBy = null,
+                    AddedOn = DateTime.UtcNow,
+                    // LastUpdatedBy = null,
+                    LastUpdatedOn = null,
+                    DeletedOn = null,
+                    // DeletedBy = null,
+                    IsStored = uploadResult.IsSuccess // Basing this on the upload of the attachment result
+                };
+
+                var createResult = await _attachmentService.AddAttachment(attachment);
+                if (!createResult.IsSuccess || createResult.Data == null)
+                {
+                    return StatusCode(createResult.StatusCode, createResult.Message);
+                }
+
+                attachments.Add(createResult.Data);
+            }
+
+            return Ok(attachments);
         }
 
         [HttpGet("space/{spaceId}")]

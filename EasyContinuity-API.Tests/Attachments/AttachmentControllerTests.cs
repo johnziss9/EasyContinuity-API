@@ -94,43 +94,128 @@ public class AttachmentControllerTests
     }
 
     [Fact]
-    public async Task Add_WithValidFile_ShouldReturnCreatedAttachment()
+    public async Task Add_WithValidFiles_ShouldReturnCreatedAttachments()
     {
         // Arrange
-        using var context = CreateContext("AddFileControllerTest");
+        using var context = CreateContext("AddFilesControllerTest");
         var service = new AttachmentService(context, _cloudinaryService);
         var controller = new AttachmentController(service, _cloudinaryService);
 
-        var file = CreateTestImage();
-        var spaceId = 1;
+        var files = new FormFileCollection
+    {
+        CreateTestImage("test1.jpg"),
+        CreateTestImage("test2.jpg")
+    };
+
+        var form = new FormCollection(
+            new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
+            files
+        );
 
         // Act
-        var result = await controller.Add(file, spaceId);
+        var result = await controller.Add(form, 1);
 
         // Assert
         var actionResult = Assert.IsType<OkObjectResult>(result.Result);
-        var attachment = Assert.IsType<Attachment>(actionResult.Value);
-        
-        Assert.Equal(file.FileName, attachment.Name);
-        Assert.NotNull(attachment.Path);
-        Assert.Equal(file.Length, attachment.Size);
-        Assert.Equal(file.ContentType, attachment.MimeType);
-        Assert.Equal(spaceId, attachment.SpaceId);
+        var attachments = Assert.IsType<List<Attachment>>(actionResult.Value);
 
-        // Store publicId for cleanup
-        _uploadedPublicIds.Add(attachment.Path);
+        Assert.Equal(2, attachments.Count);
+        foreach (var attachment in attachments)
+        {
+            Assert.NotNull(attachment.Path);
+            Assert.True(attachment.IsStored);
+            _uploadedPublicIds.Add(attachment.Path);
+        }
     }
 
     [Fact]
-    public async Task Add_WithNoFile_ShouldReturnBadRequest()
+    public async Task Add_WithTooManyFilesForSnapshot_ShouldReturnBadRequest()
     {
         // Arrange
-        using var context = CreateContext("AddNoFileControllerTest");
+        using var context = CreateContext("AddTooManyFilesTest");
         var service = new AttachmentService(context, _cloudinaryService);
         var controller = new AttachmentController(service, _cloudinaryService);
 
+        // Add 5 existing attachments
+        for (int i = 0; i < 5; i++)
+        {
+            await context.Attachments.AddAsync(new Attachment
+            {
+                SpaceId = 1,
+                SnapshotId = 1,
+                Name = $"Existing {i}",
+                Path = $"path_{i}",
+                IsDeleted = false,
+                IsStored = true
+            });
+        }
+        await context.SaveChangesAsync();
+
+        var form = new FormCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>());
+        var files = new FormFileCollection
+        {
+            CreateTestImage("test1.jpg"),
+            CreateTestImage("test2.jpg")
+        };
+        var formWithFiles = new FormCollection(form.ToDictionary(), files);
+
         // Act
-        var result = await controller.Add(file: null!, spaceId: 1);
+        var result = await controller.Add(formWithFiles, 1, 1);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task Add_WhenUploadFails_ShouldReturnError()
+    {
+        // Arrange
+        using var context = CreateContext("AddFailedUploadTest");
+        var service = new AttachmentService(context, _cloudinaryService);
+        var controller = new AttachmentController(service, _cloudinaryService);
+
+        var form = new FormCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>());
+
+        // Create a text file which should fail image validation
+        var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("This is not an image"));
+        var invalidFile = new FormFile(
+            baseStream: stream,
+            baseStreamOffset: 0,
+            length: stream.Length,
+            name: "file",
+            fileName: "test.txt"
+        )
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "text/plain"
+        };
+
+        var files = new FormFileCollection { invalidFile };
+        var formWithFiles = new FormCollection(form.ToDictionary(), files);
+
+        // Act
+        var result = await controller.Add(formWithFiles, 1);
+
+        // Assert
+        var objectResult = Assert.IsType<ObjectResult>(result.Result);
+        Assert.Equal(400, objectResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task Add_WithNoFiles_ShouldReturnBadRequest()
+    {
+        // Arrange
+        using var context = CreateContext("AddNoFilesTest");
+        var service = new AttachmentService(context, _cloudinaryService);
+        var controller = new AttachmentController(service, _cloudinaryService);
+
+        var form = new FormCollection(
+            new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
+            new FormFileCollection()
+        );
+
+        // Act
+        var result = await controller.Add(form, spaceId: 1);
 
         // Assert
         Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -285,8 +370,8 @@ public class AttachmentControllerTests
 
         using (var context = CreateContext(dbName))
         {
-            var attachment = new Models.Attachment 
-            { 
+            var attachment = new Attachment
+            {
                 Name = "Test Attachment",
                 Path = "/path/to/file",
                 Size = 1024,
@@ -339,8 +424,8 @@ public class AttachmentControllerTests
 
         using (var context = CreateContext(dbName))
         {
-            var attachment = new Models.Attachment 
-            { 
+            var attachment = new Attachment
+            {
                 Name = "Original Name",
                 Path = "/original/path",
                 Size = 1024,
@@ -355,8 +440,8 @@ public class AttachmentControllerTests
         {
             var service = new AttachmentService(context, _cloudinaryService);
             var controller = new AttachmentController(service, _cloudinaryService);
-            var updatedAttachment = new AttachmentUpdateDTO 
-            { 
+            var updatedAttachment = new AttachmentUpdateDTO
+            {
                 Name = "Updated Name",
                 Path = "/updated/path",
                 Size = 2048,
@@ -370,7 +455,7 @@ public class AttachmentControllerTests
             var actionResult = Assert.IsType<OkObjectResult>(result.Result);
             var returnValue = Assert.IsType<Models.Attachment>(actionResult.Value);
             Assert.Equal(updatedAttachment.Name, returnValue.Name);
-            
+
             // Verify in database
             var savedAttachment = await context.Attachments.FindAsync(attachmentId);
             Assert.NotNull(savedAttachment);
@@ -388,8 +473,8 @@ public class AttachmentControllerTests
         using var context = CreateContext("UpdateAttachmentInvalidControllerTest");
         var service = new AttachmentService(context, _cloudinaryService);
         var controller = new AttachmentController(service, _cloudinaryService);
-        var attachment = new AttachmentUpdateDTO 
-        { 
+        var attachment = new AttachmentUpdateDTO
+        {
             Name = "Test Attachment",
             Path = "/path/to/file"
         };
