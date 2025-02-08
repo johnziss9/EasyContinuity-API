@@ -127,6 +127,24 @@ namespace EasyContinuity_API.Services
             {
                 return Response<Attachment>.Fail(404, "Attachment Not Found");
             }
+
+            if (updatedAttachmentDTO.Name != null)
+            {
+                if (string.IsNullOrWhiteSpace(updatedAttachmentDTO.Name))
+                {
+                    return Response<Attachment>.Fail(400, "Name is required");
+                }
+
+                if (updatedAttachmentDTO.Name.Length > 150)
+                {
+                    return Response<Attachment>.Fail(400, "Name cannot exceed 150 characters");
+                }
+
+                if (!System.Text.RegularExpressions.Regex.IsMatch(updatedAttachmentDTO.Name, @"^[\w\-. \[\]()\s]+$"))
+                {
+                    return Response<Attachment>.Fail(400, "Name can only contain letters, numbers, spaces, and basic punctuation (. - _ [ ] ( ))");
+                }
+            }
             
             var attachment = new Attachment
             {
