@@ -112,19 +112,30 @@ public class AttachmentControllerTests
             files
         );
 
-        // Act
-        var result = await controller.Add(form, 1);
-
-        // Assert
-        var actionResult = Assert.IsType<OkObjectResult>(result.Result);
-        var attachments = Assert.IsType<List<Attachment>>(actionResult.Value);
-
-        Assert.Equal(2, attachments.Count);
-        foreach (var attachment in attachments)
+        try
         {
-            Assert.NotNull(attachment.Path);
-            Assert.True(attachment.IsStored);
-            _uploadedPublicIds.Add(attachment.Path);
+            // Act
+            var result = await controller.Add(form, 1);
+
+            // Assert
+            var actionResult = Assert.IsType<OkObjectResult>(result.Result);
+            var attachments = Assert.IsType<List<Attachment>>(actionResult.Value);
+
+            Assert.Equal(2, attachments.Count);
+            foreach (var attachment in attachments)
+            {
+                _uploadedPublicIds.Add(attachment.Path);
+                Assert.NotNull(attachment.Path);
+                Assert.True(attachment.IsStored);
+            }
+        }
+        finally
+        {
+            // Clean up the files immediately after test
+            foreach (var publicId in _uploadedPublicIds)
+            {
+                var deleteResult = await _cloudinaryService.DeleteAsync(publicId);
+            }
         }
     }
 
