@@ -40,11 +40,14 @@ namespace EasyContinuity_API.Controllers
                 }
             }
 
+            // Determine the appropriate folder based on the context
+            string? uploadFolder = DetermineUploadFolder(snapshotId);
+
             var attachments = new List<Attachment>();
 
             foreach (var file in files)
             {
-                var uploadResult = await _cloudinaryService.UploadAsync(file);
+                var uploadResult = await _cloudinaryService.UploadAsync(file, uploadFolder);
                 if (!uploadResult.IsSuccess || uploadResult.Data == null)
                 {
                     return StatusCode(uploadResult.StatusCode, uploadResult.Message ?? "Upload failed");
@@ -115,6 +118,15 @@ namespace EasyContinuity_API.Controllers
         public async Task<ActionResult<Attachment>> Update(int id, AttachmentUpdateDTO updatedAttachmentDTO)
         {
             return ResponseHelper.HandleErrorAndReturn(await _attachmentService.UpdateAttachment(id, updatedAttachmentDTO));
+        }
+
+        private string? DetermineUploadFolder(int? snapshotId)
+        {
+            return snapshotId switch
+            {
+                not null => "Snapshots",
+                _ => null
+            };
         }
     }
 }

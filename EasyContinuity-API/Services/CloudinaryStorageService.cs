@@ -19,7 +19,7 @@ public class CloudinaryStorageService : ICloudinaryStorageService
         _compressionService = compressionService;
     }
 
-    public async Task<Response<string>> UploadAsync(IFormFile file)
+    public async Task<Response<string>> UploadAsync(IFormFile file, string? folder = null)
     {
         try
         {
@@ -42,6 +42,12 @@ public class CloudinaryStorageService : ICloudinaryStorageService
                 File = new FileDescription(file.FileName, stream),
                 UniqueFilename = true
             };
+
+            // Add folder path if specified
+            if (!string.IsNullOrWhiteSpace(folder))
+            {
+                uploadParams.Folder = folder;
+            }
 
             var result = await _cloudinary.UploadAsync(uploadParams);
             return Response<string>.Success(result.PublicId);
