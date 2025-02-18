@@ -83,12 +83,22 @@ namespace EasyContinuity_API.Services
         {
             var attachments = await _ecDbContext.Attachments.Where(s => s.SpaceId == spaceId).ToListAsync();
 
+            foreach (var attachment in attachments)
+            {
+                attachment.Url = _cloudinaryService.GetFileUrl(attachment.Path);
+            }
+
             return Response<List<Attachment>>.Success(attachments);
         }
 
         public async Task<Response<List<Attachment>>> GetAllAttachmentsByFolderId(int folderId)
         {
             var attachments = await _ecDbContext.Attachments.Where(s => s.FolderId == folderId).ToListAsync();
+
+            foreach (var attachment in attachments)
+            {
+                attachment.Url = _cloudinaryService.GetFileUrl(attachment.Path);
+            }
 
             return Response<List<Attachment>>.Success(attachments);
         }
@@ -97,12 +107,22 @@ namespace EasyContinuity_API.Services
         {
             var attachments = await _ecDbContext.Attachments.Where(s => s.SnapshotId == snapshotId).ToListAsync();
 
+            foreach (var attachment in attachments)
+            {
+                attachment.Url = _cloudinaryService.GetFileUrl(attachment.Path);
+            }
+
             return Response<List<Attachment>>.Success(attachments);
         }
 
         public async Task<Response<List<Attachment>>> GetAllRootAttachmentsBySpaceId(int spaceId)
         {
             var attachments = await _ecDbContext.Attachments.Where(s => s.SpaceId == spaceId && s.FolderId == null).ToListAsync();
+
+            foreach (var attachment in attachments)
+            {
+                attachment.Url = _cloudinaryService.GetFileUrl(attachment.Path);
+            }
 
             return Response<List<Attachment>>.Success(attachments);
         }
@@ -115,6 +135,8 @@ namespace EasyContinuity_API.Services
             {
                 return Response<Attachment>.Fail(404, "Attachment Not Found");
             }
+
+            attachment.Url = _cloudinaryService.GetFileUrl(attachment.Path);
 
             return Response<Attachment>.Success(attachment);
         }
