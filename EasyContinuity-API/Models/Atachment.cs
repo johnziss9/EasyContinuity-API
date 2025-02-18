@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EasyContinuity_API.Models
 {
@@ -23,6 +24,9 @@ namespace EasyContinuity_API.Models
 
         [Required(ErrorMessage = "MIME Type is required.")]
         public string MimeType { get; set; } = "";
+
+        [NotMapped]
+        public string? Url { get; set; }
 
         public bool IsDeleted { get; set; }
 
