@@ -39,7 +39,7 @@ jobs:
         key: ${{ secrets.LINODE_SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          cd EasyContinuity-API
+          cd EasyContinuity-API_Staging
           git checkout dev
           git pull origin dev
           git checkout preprod
