@@ -1,7 +1,11 @@
+using System.Text;
 using EasyContinuity_API.Data;
 using EasyContinuity_API.Interfaces;
+using EasyContinuity_API.Models;
 using EasyContinuity_API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +27,37 @@ builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<ICloudinaryStorageService, CloudinaryStorageService>();
 builder.Services.AddScoped<IImageCompressionService, ImageCompressionService>();
 builder.Services.AddScoped<AttachmentCleanupService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+var jwtSettings = new JwtSettings
+{
+    Key = Environment.GetEnvironmentVariable("JWT_KEY") ?? throw new InvalidOperationException("JWT_KEY environment variable is not set."),
+    Issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "No JWT Issuer",
+    Audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "No JWT Audience",
+    ExpiryMinutes = int.TryParse(Environment.GetEnvironmentVariable("JWT_EXPIRY_MINUTES"), out int minutes) ? minutes : 60
+};
+
+builder.Services.AddSingleton(jwtSettings);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings.Issuer,
+        ValidAudience = jwtSettings.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
+    };
+});
+
 
 // Add Quartz packages
 builder.Services.AddQuartz(q =>
@@ -51,6 +86,9 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseRouting();
 
