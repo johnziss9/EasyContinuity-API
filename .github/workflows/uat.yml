@@ -36,12 +36,22 @@ jobs:
         key: ${{ secrets.LINODE_SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          cd EasyContinuity-API_UAT
+          # Ensure all running containers are stopped properly
+          cd EasyContinuity-API_Staging
+          docker compose -f docker-compose.staging.yml down --remove-orphans
+          
+          # Clean up Docker networks to prevent conflicts
+          docker network prune -f
+          
+          # Deploy to UAT
+          cd ../EasyContinuity-API_UAT
           git checkout main
           git pull origin main
           git checkout dev
           git merge main
-          cd ../EasyContinuity-API_Staging
-          docker compose -f docker-compose.staging.yml down
-          cd ../EasyContinuity-API_UAT
+          
+          # Stop UAT containers if they exist
+          docker compose -f docker-compose.uat.yml down --remove-orphans
+          
+          # Bring up UAT environment with clean builds
           docker compose -f docker-compose.uat.yml up --build -d
