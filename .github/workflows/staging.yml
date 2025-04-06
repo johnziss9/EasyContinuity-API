@@ -44,5 +44,7 @@ jobs:
           git pull origin dev
           git checkout preprod
           git merge dev
+          cd ../EasyContinuity-API_UAT
           docker compose -f docker-compose.uat.yml down
+          cd ../EasyContinuity-API_Staging
           docker compose -f docker-compose.staging.yml up --build -d
