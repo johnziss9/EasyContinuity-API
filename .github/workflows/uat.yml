@@ -45,10 +45,10 @@ jobs:
           
           # Deploy to UAT
           cd ../EasyContinuity-API_UAT
-          git checkout main
-          git pull origin main
           git checkout dev
-          git merge main
+          git pull origin dev
+          git checkout preprod
+          git merge dev
           
           # Stop UAT containers if they exist
           docker compose -f docker-compose.uat.yml down --remove-orphans
