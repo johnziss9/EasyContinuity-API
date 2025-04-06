@@ -2,7 +2,7 @@ name: Merge PR and Deploy to UAT
 
 on:
   push:
-    branches: [ main ]
+    branches: [ dev ]
 
 jobs:
   merge_and_deploy:
@@ -18,15 +18,15 @@ jobs:
       with:
         dotnet-version: '8.0.403'
 
-    - name: Merge main to dev
+    - name: Merge dev to preprod
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
-        git checkout main
-        git pull origin main
         git checkout dev
-        git merge --no-ff main
-        git push origin dev
+        git pull origin dev
+        git checkout preprod
+        git merge --no-ff dev
+        git push origin preprod
 
     - name: Deploy to Linode
       uses: appleboy/ssh-action@master
@@ -36,10 +36,22 @@ jobs:
         key: ${{ secrets.LINODE_SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          cd EasyContinuity-API
-          git checkout main
-          git pull origin main
+          # Ensure all running containers are stopped properly
+          cd EasyContinuity-API_Staging
+          docker compose -f docker-compose.staging.yml down --remove-orphans
+          
+          # Clean up Docker networks to prevent conflicts
+          docker network prune -f
+          
+          # Deploy to UAT
+          cd ../EasyContinuity-API_UAT
           git checkout dev
-          git merge main
-          docker compose -f docker-compose.staging.yml down
+          git pull origin dev
+          git checkout preprod
+          git merge dev
+          
+          # Stop UAT containers if they exist
+          docker compose -f docker-compose.uat.yml down --remove-orphans
+          
+          # Bring up UAT environment with clean builds
           docker compose -f docker-compose.uat.yml up --build -d
