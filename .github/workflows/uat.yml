@@ -2,7 +2,7 @@ name: Merge PR and Deploy to UAT
 
 on:
   push:
-    branches: [ preprod ]
+    branches: [ dev ]
 
 jobs:
   merge_and_deploy:
