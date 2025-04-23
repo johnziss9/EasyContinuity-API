@@ -1,14 +1,14 @@
-name: Manual Merge to Staging
+name: Deploy to Staging
 
 on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: 'Type "yes" to confirm merge to staging'
+        description: 'Type "yes" to confirm deployment to staging'
         required: true
 
 jobs:
-  merge_to_preprod:
+  deploy_to_staging:
     if: github.event.inputs.confirm == 'yes'
     runs-on: ubuntu-latest
     steps:
@@ -21,17 +21,18 @@ jobs:
       with:
         dotnet-version: '8.0.403'
 
-    - name: Merge dev to preprod
+    - name: Merge uat to staging
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
-        git checkout preprod
-        git pull origin preprod
-        git checkout main
-        git merge --no-ff preprod
-        git push origin main
+        git checkout uat
+        git pull origin uat
+        git checkout staging
+        git pull origin staging
+        git merge --no-ff uat -m "Merge uat into staging [skip ci]"
+        git push origin staging
 
-    - name: Deploy to Linode
+    - name: Deploy to Staging Environment
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.LINODE_HOST }}
@@ -39,22 +40,14 @@ jobs:
         key: ${{ secrets.LINODE_SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          # First ensure UAT containers are properly stopped
-          cd EasyContinuity-API_UAT
-          docker compose -f docker-compose.uat.yml down --remove-orphans
+          # Stop only API containers
+          docker ps | grep "easycontinuity-api" | awk '{print $1}' | xargs docker stop || true
           
-          # Clean up Docker networks to prevent conflicts
-          docker network prune -f
-          
-          # Move to staging directory and update code
-          cd ../EasyContinuity-API_Staging
-          git checkout preprod
-          git pull origin preprod
-          git checkout main
-          git merge preprod
-          
-          # Stop staging containers if they exist
-          docker compose -f docker-compose.staging.yml down --remove-orphans
+          # Deploy to Staging
+          cd EasyContinuity-API_Staging
+          git fetch --all
+          git checkout staging
+          git pull origin staging
           
           # Bring up staging environment with clean builds
           docker compose -f docker-compose.staging.yml up --build -d

@@ -1,11 +1,11 @@
-name: Merge PR and Deploy to UAT
+name: Merge PR to Dev and Deploy to UAT
 
 on:
   push:
     branches: [ dev ]
 
 jobs:
-  merge_and_deploy:
+  deploy_to_uat:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -18,17 +18,18 @@ jobs:
       with:
         dotnet-version: '8.0.403'
 
-    - name: Merge dev to preprod
+    - name: Merge dev to uat
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
         git checkout dev
         git pull origin dev
-        git checkout preprod
-        git merge --no-ff dev
-        git push origin preprod
+        git checkout uat
+        git pull origin uat
+        git merge --no-ff dev -m "Merge dev into uat [skip ci]"
+        git push origin uat
 
-    - name: Deploy to Linode
+    - name: Deploy to UAT Environment
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.LINODE_HOST }}
@@ -36,22 +37,14 @@ jobs:
         key: ${{ secrets.LINODE_SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          # Ensure all running containers are stopped properly
-          cd EasyContinuity-API_Staging
-          docker compose -f docker-compose.staging.yml down --remove-orphans
-          
-          # Clean up Docker networks to prevent conflicts
-          docker network prune -f
+          # Stop only API containers
+          docker ps | grep "easycontinuity-api" | awk '{print $1}' | xargs docker stop || true
           
           # Deploy to UAT
-          cd ../EasyContinuity-API_UAT
-          git checkout dev
-          git pull origin dev
-          git checkout preprod
-          git merge dev
-          
-          # Stop UAT containers if they exist
-          docker compose -f docker-compose.uat.yml down --remove-orphans
+          cd EasyContinuity-API_UAT
+          git fetch --all
+          git checkout uat
+          git pull origin uat
           
           # Bring up UAT environment with clean builds
           docker compose -f docker-compose.uat.yml up --build -d
