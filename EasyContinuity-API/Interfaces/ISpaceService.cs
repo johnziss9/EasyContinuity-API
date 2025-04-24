@@ -8,6 +8,8 @@ namespace EasyContinuity_API.Interfaces
     {
         Task<Response<Space>> CreateSpace(Space space);
 
+        Task<Response<List<Space>>> GetAllSpacesByUserId(int userId);
+
         Task<Response<List<Space>>> GetAllSpaces();
 
         Task<Response<Space>> GetSingleSpaceById(int spaceId);
