@@ -27,7 +27,11 @@ namespace EasyContinuity_API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UserSpace>()
-                .HasKey(u => new { u.UserId, u.SpaceId });
+                .HasKey(u => u.Id);
+
+            modelBuilder.Entity<UserSpace>()
+                .HasIndex(u => new { u.UserId, u.SpaceId })
+                .IsUnique();
 
             modelBuilder.Entity<Folder>()
                 .HasOne<Folder>()
