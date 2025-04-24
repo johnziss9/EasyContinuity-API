@@ -28,10 +28,10 @@ public class SpaceControllerTests
         using var context = CreateContext("CreateControllerTest");
         var service = new SpaceService(context);
         var controller = new SpaceController(service);
-        var space = new Models.Space 
-        { 
+        var space = new Space
+        {
             Name = "Test Space Name",
-            Description = "Test Space Description" 
+            Description = "Test Space Description"
         };
 
         // Act
@@ -42,9 +42,9 @@ public class SpaceControllerTests
         // Verify we got an OkObjectResult (HTTP 200 OK)
         var actionResult = Assert.IsType<OkObjectResult>(result.Result);
         // Verify the returned object is a Space
-        var returnValue = Assert.IsType<Models.Space>(actionResult.Value);
+        var returnValue = Assert.IsType<Space>(actionResult.Value);
         Assert.Equal(space.Name, returnValue.Name);
-        
+
         // Verify in database
         var savedSpace = await context.Spaces.FindAsync(returnValue.Id);
         Assert.NotNull(savedSpace);
@@ -76,7 +76,7 @@ public class SpaceControllerTests
 
             // Assert
             var actionResult = Assert.IsType<OkObjectResult>(result.Result);
-            var returnValue = Assert.IsType<List<Models.Space>>(actionResult.Value);
+            var returnValue = Assert.IsType<List<Space>>(actionResult.Value);
             Assert.Equal(2, returnValue.Count);
             Assert.Contains(returnValue, s => s.Name == "Space 1");
             Assert.Contains(returnValue, s => s.Name == "Space 2");
@@ -92,8 +92,8 @@ public class SpaceControllerTests
 
         using (var context = CreateContext(dbName))
         {
-            var space = new Space 
-            { 
+            var space = new Space
+            {
                 Name = "Test Space"
             };
             context.Spaces.Add(space);
@@ -140,8 +140,8 @@ public class SpaceControllerTests
 
         using (var context = CreateContext(dbName))
         {
-            var space = new Space 
-            { 
+            var space = new Space
+            {
                 Name = "Test Space",
                 IsDeleted = true
             };
@@ -173,19 +173,19 @@ public class SpaceControllerTests
         using (var context = CreateContext(dbName))
         {
             var space = new Space { Id = 1, Name = "Test Space" };
-            var folder = new Folder 
-            { 
+            var folder = new Folder
+            {
                 Name = "Test Folder",
                 SpaceId = 1,
                 IsDeleted = false
             };
-            var snapshot = new Snapshot 
-            { 
+            var snapshot = new Snapshot
+            {
                 Name = "Test Snapshot",
                 SpaceId = 1,
                 IsDeleted = false
             };
-            
+
             context.Spaces.Add(space);
             context.Folders.Add(folder);
             context.Snapshots.Add(snapshot);
@@ -248,19 +248,19 @@ public class SpaceControllerTests
         using (var context = CreateContext(dbName))
         {
             var space = new Space { Id = 1, Name = "Test Space" };
-            var folder = new Folder 
-            { 
+            var folder = new Folder
+            {
                 Name = "Test Folder",
                 SpaceId = 1,
                 IsDeleted = true
             };
-            var snapshot = new Snapshot 
-            { 
+            var snapshot = new Snapshot
+            {
                 Name = "Test Snapshot",
                 SpaceId = 1,
                 IsDeleted = true
             };
-            
+
             context.Spaces.Add(space);
             context.Folders.Add(folder);
             context.Snapshots.Add(snapshot);
@@ -293,19 +293,19 @@ public class SpaceControllerTests
         using (var context = CreateContext(dbName))
         {
             var space = new Space { Id = 1, Name = "Test Space" };
-            var folder = new Folder 
-            { 
+            var folder = new Folder
+            {
                 Name = "TEST FOLDER",
                 SpaceId = 1,
                 IsDeleted = false
             };
-            var snapshot = new Snapshot 
-            { 
+            var snapshot = new Snapshot
+            {
                 Name = "test snapshot",
                 SpaceId = 1,
                 IsDeleted = false
             };
-            
+
             context.Spaces.Add(space);
             context.Folders.Add(folder);
             context.Snapshots.Add(snapshot);
@@ -356,14 +356,14 @@ public class SpaceControllerTests
         {
             var space1 = new Space { Id = 1, Name = "Space 1" };
             var space2 = new Space { Id = 2, Name = "Space 2" };
-            
-            var folderInSpace2 = new Folder 
-            { 
+
+            var folderInSpace2 = new Folder
+            {
                 Name = "Test Folder",
                 SpaceId = space2.Id,
                 IsDeleted = false
             };
-            
+
             context.Spaces.AddRange(space1, space2);
             context.Folders.Add(folderInSpace2);
             await context.SaveChangesAsync();
@@ -394,10 +394,10 @@ public class SpaceControllerTests
 
         using (var context = CreateContext(dbName))
         {
-            var space = new Models.Space 
-            { 
+            var space = new Space
+            {
                 Name = "Original Name",
-                Description = "Original Description" 
+                Description = "Original Description"
             };
             context.Spaces.Add(space);
             await context.SaveChangesAsync();
@@ -408,10 +408,10 @@ public class SpaceControllerTests
         {
             var service = new SpaceService(context);
             var controller = new SpaceController(service);
-            var updatedSpace = new SpaceUpdateDTO 
-            { 
+            var updatedSpace = new SpaceUpdateDTO
+            {
                 Name = "Updated Name",
-                Description = "Updated Description" 
+                Description = "Updated Description"
             };
 
             // Act
@@ -419,9 +419,9 @@ public class SpaceControllerTests
 
             // Assert
             var actionResult = Assert.IsType<OkObjectResult>(result.Result);
-            var returnValue = Assert.IsType<Models.Space>(actionResult.Value);
+            var returnValue = Assert.IsType<Space>(actionResult.Value);
             Assert.Equal(updatedSpace.Name, returnValue.Name);
-            
+
             // Verify in database
             var savedSpace = await context.Spaces.FindAsync(spaceId);
             Assert.NotNull(savedSpace);
@@ -436,10 +436,10 @@ public class SpaceControllerTests
         using var context = CreateContext("UpdateControllerInvalidTest");
         var service = new SpaceService(context);
         var controller = new SpaceController(service);
-        var space = new SpaceUpdateDTO 
-        { 
+        var space = new SpaceUpdateDTO
+        {
             Name = "Test Space",
-            Description = "Test Description" 
+            Description = "Test Description"
         };
 
         // Act
@@ -447,5 +447,69 @@ public class SpaceControllerTests
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetAllByUserId_ShouldReturnUserSpacesOnly()
+    {
+        // Arrange
+        var dbName = "GetAllByUserIdControllerTest";
+        using (var context = CreateContext(dbName))
+        {
+            context.Spaces.AddRange(
+                new Space { Name = "User 1 Space 1", Description = "Description 1", IsDeleted = false, CreatedBy = 1 },
+                new Space { Name = "User 1 Space 2", Description = "Description 2", IsDeleted = false, CreatedBy = 1 },
+                new Space { Name = "User 2 Space", Description = "Description 3", IsDeleted = false, CreatedBy = 2 },
+                new Space { Name = "User 1 Deleted Space", Description = "Description 4", IsDeleted = true, CreatedBy = 1 }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+            var controller = new SpaceController(service);
+
+            // Act
+            var result = await controller.GetAllByUserId(1);
+
+            // Assert
+            var actionResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<List<Space>>(actionResult.Value);
+            Assert.Equal(2, returnValue.Count);
+            Assert.Contains(returnValue, s => s.Name == "User 1 Space 1");
+            Assert.Contains(returnValue, s => s.Name == "User 1 Space 2");
+            Assert.DoesNotContain(returnValue, s => s.Name == "User 2 Space");
+            Assert.DoesNotContain(returnValue, s => s.Name == "User 1 Deleted Space");
+        }
+    }
+
+    [Fact]
+    public async Task GetAllByUserId_WithNonExistentUser_ShouldReturnEmptyList()
+    {
+        // Arrange
+        var dbName = "GetAllByUserIdNonExistentControllerTest";
+        using (var context = CreateContext(dbName))
+        {
+            context.Spaces.AddRange(
+                new Space { Name = "User 1 Space", Description = "Description 1", IsDeleted = false, CreatedBy = 1 },
+                new Space { Name = "User 2 Space", Description = "Description 2", IsDeleted = false, CreatedBy = 2 }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+            var controller = new SpaceController(service);
+
+            // Act
+            var result = await controller.GetAllByUserId(999);
+
+            // Assert
+            var actionResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<List<Space>>(actionResult.Value);
+            Assert.Empty(returnValue);
+        }
     }
 }
