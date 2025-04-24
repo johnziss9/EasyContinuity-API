@@ -31,6 +31,15 @@ namespace EasyContinuity_API.Services
             return Response<List<Space>>.Success(spaces);
         }
 
+        public async Task<Response<List<Space>>> GetAllSpacesByUserId(int userId)
+        {
+            var spaces = await _ecDbContext.Spaces
+                .Where(s => s.CreatedBy == userId && s.IsDeleted == false)
+                .ToListAsync();
+
+            return Response<List<Space>>.Success(spaces);
+        }
+
         public async Task<Response<Space>> GetSingleSpaceById(int spaceId)
         {
             var space = await _ecDbContext.Spaces.Where(s => s.Id == spaceId).FirstOrDefaultAsync();
