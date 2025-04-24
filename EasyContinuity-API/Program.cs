@@ -28,6 +28,7 @@ builder.Services.AddScoped<ICloudinaryStorageService, CloudinaryStorageService>(
 builder.Services.AddScoped<IImageCompressionService, ImageCompressionService>();
 builder.Services.AddScoped<AttachmentCleanupService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IUserSpaceService, UserSpaceService>();
 
 var jwtSettings = new JwtSettings
 {
