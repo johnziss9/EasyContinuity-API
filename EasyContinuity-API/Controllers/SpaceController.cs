@@ -23,6 +23,12 @@ namespace EasyContinuity_API.Controllers
             return ResponseHelper.HandleErrorAndReturn(await _spaceService.CreateSpace(space));
         }
 
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<List<Space>>> GetAllByUserId(int userId)
+        {
+            return ResponseHelper.HandleErrorAndReturn(await _spaceService.GetAllSpacesByUserId(userId));
+        }
+
         [HttpGet]
         public async Task<ActionResult<List<Space>>> GetAll()
         {

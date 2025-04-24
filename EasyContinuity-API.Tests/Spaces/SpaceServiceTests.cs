@@ -22,10 +22,10 @@ public class SpaceServiceTests
         // Arrange
         using var context = CreateContext("CreateSpaceTest");
         var service = new SpaceService(context);
-        var space = new Models.Space 
-        { 
+        var space = new Models.Space
+        {
             Name = "Test Space",
-            Description = "Test Description" 
+            Description = "Test Description"
         };
 
         // Act
@@ -34,11 +34,11 @@ public class SpaceServiceTests
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
-        
+
         var returnedSpace = result.Data!;
         Assert.NotEqual(0, returnedSpace.Id);
         Assert.Equal(space.Name, returnedSpace.Name);
-        
+
         var savedSpace = await context.Spaces.FindAsync(returnedSpace.Id);
         Assert.NotNull(savedSpace);
         Assert.Equal(space.Name, savedSpace!.Name);
@@ -85,8 +85,8 @@ public class SpaceServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var space = new Models.Space 
-            { 
+            var space = new Models.Space
+            {
                 Name = "Test Space",
                 CreatedOn = dateAdded,
                 CreatedBy = 2
@@ -138,8 +138,8 @@ public class SpaceServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var space = new Models.Space 
-            { 
+            var space = new Models.Space
+            {
                 Name = "Test Space",
                 CreatedOn = dateAdded,
                 IsDeleted = true,
@@ -173,19 +173,19 @@ public class SpaceServiceTests
         var service = new SpaceService(context);
 
         var space = new Models.Space { Id = 1, Name = "Test Space" };
-        var folder = new Models.Folder 
-        { 
+        var folder = new Models.Folder
+        {
             Name = "Test Folder",
             SpaceId = 1,
             IsDeleted = false
         };
-        var snapshot = new Models.Snapshot 
-        { 
+        var snapshot = new Models.Snapshot
+        {
             Name = "Test Snapshot",
             SpaceId = 1,
             IsDeleted = false
         };
-        
+
         context.Spaces.Add(space);
         context.Folders.Add(folder);
         context.Snapshots.Add(snapshot);
@@ -209,19 +209,19 @@ public class SpaceServiceTests
         var service = new SpaceService(context);
 
         var space = new Models.Space { Id = 1, Name = "Test Space" };
-        var folder = new Models.Folder 
-        { 
+        var folder = new Models.Folder
+        {
             Name = "TEST FOLDER",
             SpaceId = 1,
             IsDeleted = false
         };
-        var snapshot = new Models.Snapshot 
-        { 
+        var snapshot = new Models.Snapshot
+        {
             Name = "test snapshot",
             SpaceId = 1,
             IsDeleted = false
         };
-        
+
         context.Spaces.Add(space);
         context.Folders.Add(folder);
         context.Snapshots.Add(snapshot);
@@ -262,14 +262,14 @@ public class SpaceServiceTests
 
         var space1 = new Models.Space { Id = 1, Name = "Space 1" };
         var space2 = new Models.Space { Id = 2, Name = "Space 2" };
-        
-        var folderInSpace2 = new Models.Folder 
-        { 
+
+        var folderInSpace2 = new Models.Folder
+        {
             Name = "Test Folder",
             SpaceId = space2.Id,
             IsDeleted = false
         };
-        
+
         context.Spaces.AddRange(space1, space2);
         context.Folders.Add(folderInSpace2);
         await context.SaveChangesAsync();
@@ -292,19 +292,19 @@ public class SpaceServiceTests
         var service = new SpaceService(context);
 
         var space = new Models.Space { Id = 1, Name = "Test Space" };
-        var folder = new Models.Folder 
-        { 
+        var folder = new Models.Folder
+        {
             Name = "Sample Folder",
             SpaceId = 1,
             IsDeleted = false
         };
-        var snapshot = new Models.Snapshot 
-        { 
+        var snapshot = new Models.Snapshot
+        {
             Name = "Example Snapshot",
             SpaceId = 1,
             IsDeleted = false
         };
-        
+
         context.Spaces.Add(space);
         context.Folders.Add(folder);
         context.Snapshots.Add(snapshot);
@@ -328,25 +328,25 @@ public class SpaceServiceTests
         var service = new SpaceService(context);
 
         var space = new Models.Space { Id = 1, Name = "Test Space" };
-        var folder = new Models.Folder 
-        { 
+        var folder = new Models.Folder
+        {
             Name = "Test Folder",
             SpaceId = 1,
             IsDeleted = true
         };
-        var snapshot = new Models.Snapshot 
-        { 
+        var snapshot = new Models.Snapshot
+        {
             Name = "Test Snapshot",
             SpaceId = 1,
             IsDeleted = true
         };
-        var activeFolder = new Models.Folder 
-        { 
+        var activeFolder = new Models.Folder
+        {
             Name = "Different Name",
             SpaceId = 1,
             IsDeleted = false
         };
-        
+
         context.Spaces.Add(space);
         context.Folders.AddRange(folder, activeFolder);
         context.Snapshots.Add(snapshot);
@@ -370,8 +370,8 @@ public class SpaceServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var space = new Models.Space 
-            { 
+            var space = new Models.Space
+            {
                 Name = "Original Name",
                 Description = "Original Description",
                 IsDeleted = false
@@ -397,13 +397,13 @@ public class SpaceServiceTests
             // Assert
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
-            
+
             Assert.Equal(updatedSpace.Name, result.Data!.Name);
             Assert.Equal(updatedSpace.Description, result.Data.Description);
             Assert.True(result.Data.IsDeleted);
 
             var savedSpace = await context.Spaces.FindAsync(spaceId);
-            Assert.NotNull(savedSpace); 
+            Assert.NotNull(savedSpace);
 
             Assert.Equal(updatedSpace.Name, savedSpace!.Name);
             Assert.Equal(updatedSpace.Description, savedSpace.Description);
@@ -417,10 +417,10 @@ public class SpaceServiceTests
         // Arrange
         using var context = CreateContext("UpdateSpaceInvalidTest");
         var service = new SpaceService(context);
-        var updatedSpace = new SpaceUpdateDTO 
-        { 
+        var updatedSpace = new SpaceUpdateDTO
+        {
             Name = "Updated Name",
-            Description = "Updated Description" 
+            Description = "Updated Description"
         };
 
         // Act
@@ -442,8 +442,8 @@ public class SpaceServiceTests
 
         using (var context = CreateContext(dbName))
         {
-            var space = new Models.Space 
-            { 
+            var space = new Models.Space
+            {
                 Name = "Original Name",
                 Description = "Original Description",
                 LastUpdatedOn = DateTime.UtcNow
@@ -472,6 +472,98 @@ public class SpaceServiceTests
             Assert.NotNull(savedSpace);
             Assert.NotNull(savedSpace!.LastUpdatedOn);
             Assert.Equal(originalUpdateTime, savedSpace.LastUpdatedOn!.Value);
+        }
+    }
+
+    [Fact]
+    public async Task GetAllSpacesByUserId_ShouldReturnUserSpacesOnly()
+    {
+        // Arrange
+        var dbName = "GetAllSpacesByUserIdTest";
+        using (var context = CreateContext(dbName))
+        {
+            context.Spaces.AddRange(
+                new Models.Space { Name = "User 1 Space 1", Description = "Description 1", IsDeleted = false, CreatedBy = 1 },
+                new Models.Space { Name = "User 1 Space 2", Description = "Description 2", IsDeleted = false, CreatedBy = 1 },
+                new Models.Space { Name = "User 2 Space", Description = "Description 3", IsDeleted = false, CreatedBy = 2 },
+                new Models.Space { Name = "User 1 Deleted Space", Description = "Description 4", IsDeleted = true, CreatedBy = 1 }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+
+            // Act
+            var result = await service.GetAllSpacesByUserId(1);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Data);
+            Assert.Equal(2, result.Data.Count);
+            Assert.Contains(result.Data, s => s.Name == "User 1 Space 1");
+            Assert.Contains(result.Data, s => s.Name == "User 1 Space 2");
+            Assert.DoesNotContain(result.Data, s => s.Name == "User 2 Space");
+            Assert.DoesNotContain(result.Data, s => s.Name == "User 1 Deleted Space");
+        }
+    }
+
+    [Fact]
+    public async Task GetAllSpacesByUserId_WithNonExistentUser_ShouldReturnEmptyList()
+    {
+        // Arrange
+        var dbName = "GetAllSpacesByUserIdNonExistentTest";
+        using (var context = CreateContext(dbName))
+        {
+            context.Spaces.AddRange(
+                new Models.Space { Name = "User 1 Space", Description = "Description 1", IsDeleted = false, CreatedBy = 1 },
+                new Models.Space { Name = "User 2 Space", Description = "Description 2", IsDeleted = false, CreatedBy = 2 }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+
+            // Act
+            var result = await service.GetAllSpacesByUserId(999);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Data);
+            Assert.Empty(result.Data);
+        }
+    }
+
+    [Fact]
+    public async Task GetAllSpacesByUserId_WithDeletedSpaces_ShouldExcludeDeleted()
+    {
+        // Arrange
+        var dbName = "GetAllSpacesByUserIdDeletedTest";
+        using (var context = CreateContext(dbName))
+        {
+            context.Spaces.AddRange(
+                new Models.Space { Name = "Active Space", Description = "Description 1", IsDeleted = false, CreatedBy = 1 },
+                new Models.Space { Name = "Deleted Space", Description = "Description 2", IsDeleted = true, CreatedBy = 1 }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = CreateContext(dbName))
+        {
+            var service = new SpaceService(context);
+
+            // Act
+            var result = await service.GetAllSpacesByUserId(1);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Data);
+            Assert.Single(result.Data);
+            Assert.Contains(result.Data, s => s.Name == "Active Space");
+            Assert.DoesNotContain(result.Data, s => s.Name == "Deleted Space");
         }
     }
 }
