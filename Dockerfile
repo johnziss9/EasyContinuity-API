@@ -18,7 +18,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/out .
 
-ENV ASPNETCORE_ENVIRONMENT=Development
+ARG ENVIRONMENT=Development
+ENV ASPNETCORE_ENVIRONMENT=${ENVIRONMENT}
 ENV ASPNETCORE_URLS=http://+:80
 
-ENTRYPOINT [ "dotnet", "EasyContinuity-API.dll" ]
+ENTRYPOINT ["dotnet", "EasyContinuity-API.dll"]

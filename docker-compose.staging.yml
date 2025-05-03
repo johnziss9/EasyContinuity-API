@@ -2,7 +2,9 @@ services:
   easy-continuity-api-staging:
     build:
       context: .
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile
+      args:
+        - ENVIRONMENT=Staging
     ports:
       - "5003:80"
     depends_on:
