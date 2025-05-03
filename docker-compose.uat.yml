@@ -2,7 +2,9 @@ services:
   easy-continuity-api-uat:
     build:
       context: .
-      dockerfile: Dockerfile.uat
+      dockerfile: Dockerfile
+      args:
+        - ENVIRONMENT=UAT
     ports:
       - "5004:80"
     depends_on:

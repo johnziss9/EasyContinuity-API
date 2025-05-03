@@ -2,7 +2,9 @@ services:
   easy-continuity-api-dev:
     build:
       context: .
-      dockerfile: Dockerfile.uat # This is looking at the same Dockerfile as the test environment.
+      dockerfile: dockerfile
+      args:
+        - ENVIRONMENT=Development
     ports:
       - "5005:80"
     depends_on:
