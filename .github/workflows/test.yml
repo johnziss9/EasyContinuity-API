@@ -1,18 +1,15 @@
-name: Deploy to UAT
+name: Merge PR to Dev and Deploy to Test
 
 on:
-  workflow_dispatch:
-    inputs:
-      confirm:
-        description: 'Type "yes" to confirm deployment to UAT'
-        required: true
+  push:
+    branches: [ dev ]
 
 jobs:
-  deploy_to_uat:
-    if: github.event.inputs.confirm == 'yes'
+  deploy_to_test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0 # Fetches the entire history of the repository
 
@@ -21,18 +18,18 @@ jobs:
       with:
         dotnet-version: '8.0.403'
 
-    - name: Merge test to uat
+    - name: Merge dev to test
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
+        git checkout dev
+        git pull origin dev
         git checkout test
         git pull origin test
-        git checkout uat
-        git pull origin uat
-        git merge --no-ff test -m "Merge test into uat [skip ci]"
-        git push origin uat
+        git merge --no-ff dev -m "Merge dev into test [skip ci]"
+        git push origin test
 
-    - name: Deploy to UAT Environment
+    - name: Deploy to Test Environment
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.LINODE_HOST }}
@@ -43,11 +40,11 @@ jobs:
           # Stop only API containers
           docker ps | grep "easycontinuity-api" | awk '{print $1}' | xargs docker stop || true
           
-          # Deploy to UAT
-          cd EasyContinuity-API_UAT
+          # Deploy to Test
+          cd EasyContinuity-API_Test
           git fetch --all
-          git checkout uat
-          git pull origin uat
+          git checkout test
+          git pull origin test
           
-          # Bring up UAT environment with clean builds
-          docker compose -f docker-compose.uat.yml up --build -d
+          # Bring up test environment with clean builds
+          docker compose -f docker-compose.test.yml up --build -d
