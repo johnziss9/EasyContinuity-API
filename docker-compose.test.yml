@@ -1,55 +1,55 @@
 services:
-  easy-continuity-api-staging:
+  easy-continuity-api-test:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        - ENVIRONMENT=Staging
+        - ENVIRONMENT=Test
     ports:
-      - "5003:80"
+      - "5004:80"
     depends_on:
-      - postgres-staging
+      - postgres-test
     environment:
-      ASPNETCORE_ENVIRONMENT: Staging
-      ConnectionStrings__ECPostgresConnection: "Host=postgres-staging;Database=ecdb_staging;Username=${DB_USER};Password=${DB_PASSWORD}"
+      ASPNETCORE_ENVIRONMENT: Test
+      ConnectionStrings__ECPostgresConnection: "Host=postgres-test;Database=ecdb_test;Username=${DB_USER};Password=${DB_PASSWORD}"
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
       # JWT Settings
       JWT_KEY: ${JWT_KEY}
-      JWT_ISSUER: ${JWT_ISSUER_STAGING}
-      JWT_AUDIENCE: ${JWT_AUDIENCE_STAGING}
+      JWT_ISSUER: ${JWT_ISSUER}
+      JWT_AUDIENCE: ${JWT_AUDIENCE}
       JWT_EXPIRY_MINUTES: ${JWT_EXPIRY_MINUTES}
     env_file:
       - .env
 
-  postgres-staging:
+  postgres-test:
     image: postgres
     environment:
-      POSTGRES_DB: ecdb_staging
+      POSTGRES_DB: ecdb_test
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5435:5432"
+      - "5436:5432"
     volumes:
-      - db-staging-data:/var/lib/postgresql/data
+      - db-test-data:/var/lib/postgresql/data
     env_file:
       - .env
 
-  pgadmin-staging:
+  pgadmin-test:
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "5053:80"
+      - "5054:80"
     depends_on:
-      - postgres-staging
+      - postgres-test
     volumes:
-      - pgadmin-staging-data:/var/lib/pgadmin
+      - pgadmin-test-data:/var/lib/pgadmin
     env_file:
       - .env
 
 volumes:
-  db-staging-data:
-  pgadmin-staging-data:
+  db-test-data:
+  pgadmin-test-data:
