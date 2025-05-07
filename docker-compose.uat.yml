@@ -6,7 +6,7 @@ services:
       args:
         - ENVIRONMENT=UAT
     ports:
-      - "5004:80"
+      - "5003:80"
     depends_on:
       - postgres-uat
     environment:
@@ -30,7 +30,7 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5436:5432"
+      - "5435:5432"
     volumes:
       - db-uat-data:/var/lib/postgresql/data
     env_file:
@@ -42,7 +42,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "5054:80"
+      - "5053:80"
     depends_on:
       - postgres-uat
     volumes:
